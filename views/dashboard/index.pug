@@ -1,0 +1,142 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h1
+      i.bi.bi-speedometer2.me-2
+      | Tableau de Bord
+    .text-muted
+      i.bi.bi-calendar.me-1
+      = new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+
+  // Cartes de statistiques
+  .row.mb-4
+    .col-md-3.mb-3
+      .card.dashboard-card.success
+        .card-body
+          .d-flex.justify-content-between.align-items-center
+            div
+              h2.text-success.mb-0= stats.totalFurniture
+              p.card-text.mb-0 Meubles créés
+            i.bi.bi-bookmark-fill.display-4.text-success.opacity-25
+    
+    .col-md-3.mb-3
+      .card.dashboard-card.warning
+        .card-body
+          .d-flex.justify-content-between.align-items-center
+            div
+              h2.text-warning.mb-0= stats.totalMaterials
+              p.card-text.mb-0 Matériaux disponibles
+            i.bi.bi-tools.display-4.text-warning.opacity-25
+    
+    .col-md-3.mb-3
+      .card.dashboard-card
+        .card-body
+          .d-flex.justify-content-between.align-items-center
+            div
+              h2.text-primary.mb-0= stats.totalSuppliers
+              p.card-text.mb-0 Fournisseurs
+            i.bi.bi-building.display-4.text-primary.opacity-25
+    
+    .col-md-3.mb-3
+      .card.dashboard-card.danger
+        .card-body
+          .d-flex.justify-content-between.align-items-center
+            div
+              h2.text-danger.mb-0= stats.totalCost.toFixed(2) + ' €'
+              p.card-text.mb-0 Coût total production
+            i.bi.bi-currency-euro.display-4.text-danger.opacity-25
+
+  // Graphiques
+  .row.mb-4
+    .col-md-6.mb-3
+      .card
+        .card-header
+          h5.card-title.mb-0
+            i.bi.bi-pie-chart.me-2
+            | Répartition par catégorie
+        .card-body
+          .chart-container
+            canvas#categoryChart
+
+    .col-md-6.mb-3
+      .card
+        .card-header
+          h5.card-title.mb-0
+            i.bi.bi-bar-chart.me-2
+            | Matériaux par catégorie
+        .card-body
+          .chart-container
+            canvas#materialChart
+
+  // Détails des statistiques
+  .row.mb-4
+    .col-md-6.mb-3
+      .card
+        .card-header
+          h5.card-title.mb-0
+            i.bi.bi-list-check.me-2
+            | Répartition par statut
+        .card-body
+          if furnitureByStatus && furnitureByStatus.length > 0
+            each status in furnitureByStatus
+              .d-flex.justify-content-between.align-items-center.mb-2
+                span= status._id
+                span.badge.bg-primary= status.count
+          else
+            p.text-muted Aucune donnée disponible
+
+    .col-md-6.mb-3
+      .card
+        .card-header
+          h5.card-title.mb-0
+            i.bi.bi-star.me-2
+            | Matériaux les plus utilisés
+        .card-body
+          if materialUsage && materialUsage.length > 0
+            each material in materialUsage.slice(0, 5)
+              .d-flex.justify-content-between.align-items-center.mb-2
+                div
+                  strong= material.material.name
+                  br
+                  small.text-muted= material.material.category
+                span.badge.bg-success= material.usageCount + ' fois'
+          else
+            p.text-muted Aucune donnée disponible
+
+  // Activité récente
+  if recentFurniture && recentFurniture.length > 0
+    .row
+      .col-12
+        .card
+          .card-header
+            h5.card-title.mb-0
+              i.bi.bi-clock-history.me-2
+              | Activité récente
+          .card-body
+            .table-responsive
+              table.table.table-hover
+                thead
+                  tr
+                    th Nom
+                    th Catégorie
+                    th Statut
+                    th Coût
+                    th Date
+                    th Actions
+                tbody
+                  each furniture in recentFurniture
+                    tr
+                      td= furniture.name
+                      td
+                        span.badge.bg-primary= furniture.category
+                      td
+                        span.badge(class=`status-${furniture.status.toLowerCase().replace(' ', '-')}`)= furniture.status
+                      td= furniture.totalCost.toFixed(2) + ' €'
+                      td= furniture.createdAt.toLocaleDateString('fr-FR')
+                      td
+                        a.btn.btn-sm.btn-outline-primary(href=`/furniture/${furniture._id}`) Voir
+
+block scripts
+  script.
+    // Les graphiques seront initialisés par app.js

@@ -1,0 +1,79 @@
+extends layout
+
+block content
+  // Hero Section
+  .row.mb-5
+    .col-12
+      .jumbotron.bg-primary.text-white.rounded.p-5
+        h1.display-4 Bienvenue dans votre espace de gestion
+        p.lead Gérez efficacement vos meubles, matériaux et fournisseurs
+        if !user
+          a.btn.btn-light.btn-lg(href="/auth/login") Se connecter
+        else
+          a.btn.btn-light.btn-lg(href="/dashboard") Accéder au tableau de bord
+
+  // Statistiques rapides
+  .row.mb-4
+    .col-md-6
+      .card.h-100
+        .card-body.text-center
+          i.bi.bi-bookmark-fill.display-1.text-primary
+          h3.card-title= furnitureCount || 0
+          p.card-text Meubles créés
+    .col-md-6
+      .card.h-100
+        .card-body.text-center
+          i.bi.bi-tools.display-1.text-success
+          h3.card-title= materialCount || 0
+          p.card-text Matériaux disponibles
+
+  // Meubles récents
+  if recentFurniture && recentFurniture.length > 0
+    .row.mb-4
+      .col-12
+        h2.mb-3 Dernières réalisations
+        .row
+          each furniture in recentFurniture
+            .col-md-6.col-lg-4.mb-3
+              .card.h-100
+                .card-body
+                  h5.card-title= furniture.name
+                  p.card-text
+                    span.badge.bg-primary.me-2= furniture.category
+                    span.badge.bg-secondary= furniture.status
+                  p.card-text.text-muted= furniture.description || 'Aucune description'
+                  p.card-text
+                    small.text-muted
+                      i.bi.bi-calendar.me-1
+                      = furniture.createdAt.toLocaleDateString('fr-FR')
+                .card-footer
+                  a.btn.btn-outline-primary.btn-sm(href=`/furniture/${furniture._id}`) Voir détails
+
+  // Fonctionnalités principales
+  .row
+    .col-md-4.mb-3
+      .card.text-center
+        .card-body
+          i.bi.bi-bookmark-plus.display-1.text-primary
+          h5.card-title Créer un meuble
+          p.card-text Ajoutez un nouveau meuble avec ses matériaux
+          if user
+            a.btn.btn-primary(href="/furniture/new") Créer
+          else
+            span.text-muted Connexion requise
+    
+    .col-md-4.mb-3
+      .card.text-center
+        .card-body
+          i.bi.bi-list-ul.display-1.text-success
+          h5.card-title Consulter les meubles
+          p.card-text Parcourez tous vos meubles créés
+          a.btn.btn-success(href="/furniture") Consulter
+    
+    .col-md-4.mb-3
+      .card.text-center
+        .card-body
+          i.bi.bi-tools.display-1.text-warning
+          h5.card-title Gérer les matériaux
+          p.card-text Consultez la liste des matériaux disponibles
+          a.btn.btn-warning(href="/materials") Consulter

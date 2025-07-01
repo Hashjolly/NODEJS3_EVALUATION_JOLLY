@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .row.justify-content-center
+    .col-md-8.col-lg-6
+      .card.shadow
+        .card-body.text-center
+          if error && error.status == 404
+            i.bi.bi-exclamation-triangle.display-1.text-warning.mb-3
+            h1.text-warning 404
+            h3 Page non trouvée
+          else if error && error.status == 403
+            i.bi.bi-shield-exclamation.display-1.text-danger.mb-3
+            h1.text-danger 403
+            h3 Accès refusé
+          else
+            i.bi.bi-bug.display-1.text-danger.mb-3
+            h1.text-danger 500
+            h3 Erreur serveur
+          
+          p.lead.mb-4= message || 'Une erreur inattendue s\'est produite.'
+          
+          .d-flex.justify-content-center.gap-2
+            a.btn.btn-primary(href="/")
+              i.bi.bi-house.me-2
+              | Retour à l'accueil
+            if user
+              a.btn.btn-outline-primary(href="/dashboard")
+                i.bi.bi-speedometer2.me-2
+                | Tableau de bord
