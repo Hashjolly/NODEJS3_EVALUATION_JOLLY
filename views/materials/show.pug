@@ -1,0 +1,168 @@
+extends ../layout
+
+block content
+  .row
+    .col-md-8
+      .card
+        .card-body
+          .d-flex.justify-content-between.align-items-start.mb-3
+            div
+              h1.card-title= material.name
+              p.text-muted.mb-2= material.type
+              if material.description
+                p.mb-2= material.description
+            div.text-end
+              span.badge.fs-6(class=`bg-${material.category === 'Bois' ? 'warning' : material.category === 'Fer' ? 'secondary' : 'info'}`)= material.category
+
+          .row.mb-3
+            .col-sm-6
+              strong Prix unitaire :
+              p.text-success.fs-4
+                strong= `${material.unitPrice.toFixed(2)} € / ${material.unit}`
+            .col-sm-6
+              strong Fournisseur :
+              p
+                if material.supplier
+                  a.text-decoration-none(href=`#`)= material.supplier.name
+                else
+                  span.text-muted Aucun fournisseur
+
+          .row.mb-3
+            .col-sm-6
+              strong Date de création :
+              p= material.createdAt.toLocaleDateString()
+            .col-sm-6
+              strong Dernière modification :
+              p= material.updatedAt.toLocaleDateString()
+
+          if material.keywords && material.keywords.length > 0
+            .mb-3
+              strong Mots-clés :
+              br
+              each keyword in material.keywords
+                a.badge.bg-light.text-dark.me-1.mt-1.text-decoration-none(href=`/materials/keyword/${keyword}`)= keyword
+
+    .col-md-4
+      .card.mb-3
+        .card-header
+          h5.mb-0
+            i.bi.bi-tools.me-2
+            | Actions
+        .card-body
+          .d-grid.gap-2
+            a.btn.btn-warning(href=`/materials/${material._id}/edit`)
+              i.bi.bi-pencil.me-1
+              | Modifier ce matériau
+            button.btn.btn-danger(onclick=`deleteMaterial('${material._id}', '${material.name}')`)
+              i.bi.bi-trash.me-1
+              | Supprimer ce matériau
+            a.btn.btn-outline-secondary(href="/materials")
+              i.bi.bi-arrow-left.me-1
+              | Retour à la liste
+
+      if material.supplier
+        .card
+          .card-header
+            h6.mb-0
+              i.bi.bi-building.me-2
+              | Fournisseur
+          .card-body
+            h6= material.supplier.name
+            if material.supplier.email
+              p.mb-1
+                i.bi.bi-envelope.me-1
+                = material.supplier.email
+            if material.supplier.phone
+              p.mb-1
+                i.bi.bi-telephone.me-1
+                = material.supplier.phone
+            if material.supplier.address
+              p.mb-0
+                i.bi.bi-geo-alt.me-1
+                = material.supplier.address
+
+  .row.mt-4
+    .col-12
+      .card
+        .card-header
+          h5.mb-0
+            i.bi.bi-hammer.me-2
+            | Meubles utilisant ce matériau
+        .card-body
+          if furniture && furniture.length > 0
+            .table-responsive
+              table.table.table-hover
+                thead
+                  tr
+                    th Nom du meuble
+                    th Catégorie
+                    th Statut
+                    th Coût total
+                    th Actions
+                tbody
+                  each item in furniture
+                    tr
+                      td
+                        strong= item.name
+                      td
+                        span.badge(class=item.category === 'Armoire' ? 'bg-primary' : 'bg-success')= item.category
+                      td
+                        span.badge(class=`bg-${item.status === 'Terminé' ? 'success' : item.status === 'En production' ? 'warning' : 'secondary'}`)= item.status
+                      td.text-success
+                        strong= `${item.totalCost.toFixed(2)} €`
+                      td
+                        a.btn.btn-sm.btn-outline-primary(href=`/furniture/${item._id}`)
+                          i.bi.bi-eye.me-1
+                          | Voir
+          else
+            .text-center.py-4
+              i.bi.bi-info-circle.display-4.text-muted
+              p.text-muted.mt-2 Ce matériau n'est utilisé dans aucun meuble pour le moment
+
+  // Messages de succès
+  if success
+    script.
+      const urlParams = new URLSearchParams(window.location.search);
+      const successMessage = urlParams.get('success');
+      if (successMessage) {
+        // Créer l'alerte
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          ${successMessage}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insérer au début du contenu principal
+        const main = document.querySelector('main .row');
+        main.parentNode.insertBefore(alertDiv, main);
+        
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+block scripts
+  script.
+    function deleteMaterial(id, name) {
+      if (confirm(`Êtes-vous sûr de vouloir supprimer le matériau "${name}" ?\n\nCette action vérifiera si le matériau est utilisé dans des meubles.`)) {
+        fetch(`/materials/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            window.location.href = '/materials';
+          } else {
+            alert(data.message || 'Erreur lors de la suppression');
+          }
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          alert('Erreur lors de la suppression');
+        });
+      }
+    }

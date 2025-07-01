@@ -1,0 +1,58 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h1
+      i.bi.bi-tag.me-2
+      | Matériaux avec le mot-clé "#{keyword}"
+    a.btn.btn-secondary(href="/materials")
+      i.bi.bi-arrow-left.me-1
+      | Retour aux matériaux
+
+  if materials && materials.length > 0
+    .row
+      each material in materials
+        .col-md-6.col-lg-4.mb-4
+          .card.h-100
+            .card-body
+              .d-flex.justify-content-between.align-items-start.mb-2
+                h5.card-title= material.name
+                span.badge(class=`bg-${material.category === 'Bois' ? 'warning' : material.category === 'Fer' ? 'secondary' : 'info'}`)= material.category
+              
+              p.card-text.text-muted= material.type
+              if material.description
+                p.card-text.small= material.description
+              
+              .d-flex.justify-content-between.align-items-center.mb-2
+                strong.text-success= `${material.unitPrice.toFixed(2)} €/${material.unit}`
+                small.text-muted
+                  if material.supplier
+                    = material.supplier.name
+                  else
+                    | Aucun fournisseur
+              
+              if material.keywords && material.keywords.length > 0
+                .mb-2
+                  each kw in material.keywords
+                    if kw.toLowerCase() === keyword.toLowerCase()
+                      span.badge.bg-primary.me-1= kw
+                    else
+                      a.badge.bg-light.text-dark.me-1.text-decoration-none(href=`/materials/keyword/${kw}`)= kw
+            
+            .card-footer.bg-transparent
+              .d-flex.gap-2
+                a.btn.btn-sm.btn-outline-primary(href=`/materials/${material._id}`)
+                  i.bi.bi-eye.me-1
+                  | Voir
+                a.btn.btn-sm.btn-outline-warning(href=`/materials/${material._id}/edit`)
+                  i.bi.bi-pencil.me-1
+                  | Modifier
+
+  else
+    .text-center.py-5
+      i.bi.bi-search.display-1.text-muted
+      h3.text-muted.mt-3 Aucun matériau trouvé
+      p.text-muted Aucun matériau ne correspond au mot-clé "#{keyword}"
+      a.btn.btn-primary(href="/materials")
+        i.bi.bi-arrow-left.me-1
+        | Retour aux matériaux

@@ -1,0 +1,106 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-md-8
+      .card
+        .card-header
+          h3.mb-0
+            i.bi.bi-pencil.me-2
+            | Modifier le matériau
+        .card-body
+          if error
+            .alert.alert-danger= error
+
+          form(action=`/materials/${material._id}?_method=PUT`, method="POST")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="name") Nom du matériau *
+                  input.form-control#name(type="text", name="name", value=material.name, required, placeholder="Ex: Chêne massif")
+                
+                .mb-3
+                  label.form-label(for="category") Catégorie *
+                  select.form-select#category(name="category", required)
+                    option(value="") Sélectionner une catégorie
+                    option(value="Bois", selected=material.category === 'Bois') Bois
+                    option(value="Fer", selected=material.category === 'Fer') Fer
+                    option(value="Plastique", selected=material.category === 'Plastique') Plastique
+                
+                .mb-3
+                  label.form-label(for="type") Type *
+                  input.form-control#type(type="text", name="type", value=material.type, required, placeholder="Ex: Massif, Laminé, Inoxydable...")
+                
+                .mb-3
+                  label.form-label(for="supplier") Fournisseur *
+                  select.form-select#supplier(name="supplier", required)
+                    option(value="") Sélectionner un fournisseur
+                    each sup in suppliers
+                      option(value=sup._id, selected=material.supplier._id.toString() === sup._id.toString())= sup.name
+
+              .col-md-6
+                .mb-3
+                  label.form-label(for="unitPrice") Prix unitaire
+                  .input-group
+                    input.form-control#unitPrice(type="number", name="unitPrice", step="0.01", min="0", value=material.unitPrice, placeholder="0.00")
+                    span.input-group-text €
+                
+                .mb-3
+                  label.form-label(for="unit") Unité
+                  input.form-control#unit(type="text", name="unit", value=material.unit, placeholder="kg, m², m³, unité...")
+                
+                .mb-3
+                  label.form-label(for="keywords") Mots-clés (séparés par des virgules)
+                  input.form-control#keywords(type="text", name="keywords", value=material.keywords ? material.keywords.join(', ') : '', placeholder="résistant, écologique, premium...")
+                
+                .mb-3
+                  label.form-label(for="description") Description
+                  textarea.form-control#description(name="description", rows="3", placeholder="Description détaillée du matériau...")= material.description || ''
+
+            .d-flex.justify-content-between.mt-4
+              a.btn.btn-secondary(href=`/materials/${material._id}`)
+                i.bi.bi-arrow-left.me-1
+                | Annuler
+              button.btn.btn-warning(type="submit")
+                i.bi.bi-check-lg.me-1
+                | Sauvegarder les modifications
+
+block scripts
+  script.
+    // Auto-suggestion pour le type basé sur la catégorie
+    document.getElementById('category').addEventListener('change', function() {
+      const category = this.value;
+      const typeInput = document.getElementById('type');
+      
+      const suggestions = {
+        'Bois': ['Massif', 'Contreplaqué', 'Aggloméré', 'MDF', 'OSB', 'Laminé'],
+        'Fer': ['Inoxydable', 'Galvanisé', 'Forgé', 'Fonte', 'Acier doux'],
+        'Plastique': ['PVC', 'Polypropylène', 'ABS', 'Polystyrène', 'Polyéthylène']
+      };
+      
+      if (suggestions[category]) {
+        // Créer une datalist pour auto-complétion
+        let datalist = document.getElementById('type-suggestions');
+        if (!datalist) {
+          datalist = document.createElement('datalist');
+          datalist.id = 'type-suggestions';
+          typeInput.parentNode.appendChild(datalist);
+          typeInput.setAttribute('list', 'type-suggestions');
+        }
+        
+        datalist.innerHTML = '';
+        suggestions[category].forEach(type => {
+          const option = document.createElement('option');
+          option.value = type;
+          datalist.appendChild(option);
+        });
+      }
+    });
+    
+    // Déclencher l'événement au chargement si une catégorie est déjà sélectionnée
+    document.addEventListener('DOMContentLoaded', function() {
+      const categorySelect = document.getElementById('category');
+      if (categorySelect.value) {
+        categorySelect.dispatchEvent(new Event('change'));
+      }
+    });

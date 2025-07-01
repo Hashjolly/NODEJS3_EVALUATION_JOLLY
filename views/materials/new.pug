@@ -1,0 +1,98 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-md-8
+      .card
+        .card-header
+          h3.mb-0
+            i.bi.bi-plus-lg.me-2
+            | Nouveau Matériau
+        .card-body
+          if error
+            .alert.alert-danger= error
+
+          form(action="/materials", method="POST")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="name") Nom du matériau *
+                  input.form-control#name(type="text", name="name", value=formData ? formData.name : '', required, placeholder="Ex: Chêne massif")
+                
+                .mb-3
+                  label.form-label(for="category") Catégorie *
+                  select.form-select#category(name="category", required)
+                    option(value="") Sélectionner une catégorie
+                    option(value="Bois", selected=formData && formData.category === 'Bois') Bois
+                    option(value="Fer", selected=formData && formData.category === 'Fer') Fer
+                    option(value="Plastique", selected=formData && formData.category === 'Plastique') Plastique
+                
+                .mb-3
+                  label.form-label(for="type") Type *
+                  input.form-control#type(type="text", name="type", value=formData ? formData.type : '', required, placeholder="Ex: Massif, Laminé, Inoxydable...")
+                
+                .mb-3
+                  label.form-label(for="supplier") Fournisseur *
+                  select.form-select#supplier(name="supplier", required)
+                    option(value="") Sélectionner un fournisseur
+                    each sup in suppliers
+                      option(value=sup._id, selected=formData && formData.supplier === sup._id.toString())= sup.name
+
+              .col-md-6
+                .mb-3
+                  label.form-label(for="unitPrice") Prix unitaire
+                  .input-group
+                    input.form-control#unitPrice(type="number", name="unitPrice", step="0.01", min="0", value=formData ? formData.unitPrice : '', placeholder="0.00")
+                    span.input-group-text €
+                
+                .mb-3
+                  label.form-label(for="unit") Unité
+                  input.form-control#unit(type="text", name="unit", value=formData ? formData.unit : 'kg', placeholder="kg, m², m³, unité...")
+                
+                .mb-3
+                  label.form-label(for="keywords") Mots-clés (séparés par des virgules)
+                  input.form-control#keywords(type="text", name="keywords", value=formData ? formData.keywords : '', placeholder="résistant, écologique, premium...")
+                
+                .mb-3
+                  label.form-label(for="description") Description
+                  textarea.form-control#description(name="description", rows="3", placeholder="Description détaillée du matériau...")= formData ? formData.description : ''
+
+            .d-flex.justify-content-between.mt-4
+              a.btn.btn-secondary(href="/materials")
+                i.bi.bi-arrow-left.me-1
+                | Annuler
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-check-lg.me-1
+                | Créer le matériau
+
+block scripts
+  script.
+    // Auto-suggestion pour le type basé sur la catégorie
+    document.getElementById('category').addEventListener('change', function() {
+      const category = this.value;
+      const typeInput = document.getElementById('type');
+      
+      const suggestions = {
+        'Bois': ['Massif', 'Contreplaqué', 'Aggloméré', 'MDF', 'OSB', 'Laminé'],
+        'Fer': ['Inoxydable', 'Galvanisé', 'Forgé', 'Fonte', 'Acier doux'],
+        'Plastique': ['PVC', 'Polypropylène', 'ABS', 'Polystyrène', 'Polyéthylène']
+      };
+      
+      if (suggestions[category] && !typeInput.value) {
+        // Créer une datalist pour auto-complétion
+        let datalist = document.getElementById('type-suggestions');
+        if (!datalist) {
+          datalist = document.createElement('datalist');
+          datalist.id = 'type-suggestions';
+          typeInput.parentNode.appendChild(datalist);
+          typeInput.setAttribute('list', 'type-suggestions');
+        }
+        
+        datalist.innerHTML = '';
+        suggestions[category].forEach(type => {
+          const option = document.createElement('option');
+          option.value = type;
+          datalist.appendChild(option);
+        });
+      }
+    });

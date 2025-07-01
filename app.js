@@ -69,4 +69,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log('Visitez http://localhost:' + PORT + ' pour accéder à l\'application');
 });

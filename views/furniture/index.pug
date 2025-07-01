@@ -1,0 +1,128 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h1
+      i.bi.bi-hammer.me-2
+      | Gestion des Meubles
+    a.btn.btn-primary(href="/furniture/new")
+      i.bi.bi-plus-lg.me-1
+      | Nouveau Meuble
+
+  // Filtres et recherche
+  .card.mb-4
+    .card-body
+      form.row.g-3(method="GET")
+        .col-md-3
+          label.form-label Catégorie
+          select.form-select(name="category")
+            option(value="") Toutes les catégories
+            option(value="Armoire", selected=category === 'Armoire') Armoire
+            option(value="Etagère", selected=category === 'Etagère') Étagère
+        .col-md-3
+          label.form-label Statut
+          select.form-select(name="status")
+            option(value="") Tous les statuts
+            option(value="Conception", selected=status === 'Conception') Conception
+            option(value="En production", selected=status === 'En production') En production
+            option(value="Terminé", selected=status === 'Terminé') Terminé
+            option(value="Livré", selected=status === 'Livré') Livré
+        .col-md-4
+          label.form-label Recherche
+          input.form-control(type="text", name="search", value=search || "", placeholder="Nom, description, mots-clés...")
+        .col-md-2
+          label.form-label &nbsp;
+          .d-grid
+            button.btn.btn-outline-primary(type="submit")
+              i.bi.bi-search.me-1
+              | Filtrer
+
+  // Résultats
+  if furniture && furniture.length > 0
+    .row
+      each item in furniture
+        .col-md-6.col-lg-4.mb-4
+          .card.h-100
+            .card-body
+              .d-flex.justify-content-between.align-items-start.mb-2
+                h5.card-title= item.name
+                span.badge(class=item.category === 'Armoire' ? 'bg-primary' : 'bg-success')= item.category
+              
+              p.card-text.text-muted= item.description || 'Pas de description'
+              
+              .d-flex.justify-content-between.align-items-center.mb-2
+                small.text-muted
+                  i.bi.bi-calendar.me-1
+                  = item.designDate.toLocaleDateString()
+                span.badge(class=`bg-${item.status === 'Terminé' ? 'success' : item.status === 'En production' ? 'warning' : 'secondary'}`)= item.status
+              
+              if item.keywords && item.keywords.length > 0
+                .mb-2
+                  each keyword in item.keywords
+                    span.badge.bg-light.text-dark.me-1= keyword
+              
+              .d-flex.justify-content-between.align-items-center.mb-2
+                strong.text-success= `${item.totalCost.toFixed(2)} €`
+                small.text-muted= `${item.materials.length} matériau${item.materials.length > 1 ? 'x' : ''}`
+            
+            .card-footer.bg-transparent
+              .d-flex.gap-2
+                a.btn.btn-sm.btn-outline-primary(href=`/furniture/${item._id}`)
+                  i.bi.bi-eye.me-1
+                  | Voir
+                a.btn.btn-sm.btn-outline-warning(href=`/furniture/${item._id}/edit`)
+                  i.bi.bi-pencil.me-1
+                  | Modifier
+                button.btn.btn-sm.btn-outline-danger(onclick=`deleteFurniture('${item._id}', '${item.name}')`)
+                  i.bi.bi-trash.me-1
+                  | Supprimer
+
+    // Pagination
+    if totalPages > 1
+      nav.mt-4
+        ul.pagination.justify-content-center
+          if currentPage > 1
+            li.page-item
+              a.page-link(href=`?page=${currentPage - 1}&category=${category || ''}&status=${status || ''}&search=${search || ''}`) Précédent
+          
+          - for (let i = 1; i <= totalPages; i++)
+            li.page-item(class=i === currentPage ? 'active' : '')
+              a.page-link(href=`?page=${i}&category=${category || ''}&status=${status || ''}&search=${search || ''}`)= i
+          
+          if currentPage < totalPages
+            li.page-item
+              a.page-link(href=`?page=${currentPage + 1}&category=${category || ''}&status=${status || ''}&search=${search || ''}`) Suivant
+
+  else
+    .text-center.py-5
+      i.bi.bi-inbox.display-1.text-muted
+      h3.text-muted.mt-3 Aucun meuble trouvé
+      p.text-muted Commencez par créer votre premier meuble
+      a.btn.btn-primary(href="/furniture/new")
+        i.bi.bi-plus-lg.me-1
+        | Créer un meuble
+
+block scripts
+  script.
+    function deleteFurniture(id, name) {
+      if (confirm(`Êtes-vous sûr de vouloir supprimer le meuble "${name}" ?`)) {
+        fetch(`/furniture/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert(data.message || 'Erreur lors de la suppression');
+          }
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          alert('Erreur lors de la suppression');
+        });
+      }
+    }

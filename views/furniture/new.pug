@@ -1,0 +1,196 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-md-10
+      .card
+        .card-header
+          h3.mb-0
+            i.bi.bi-plus-lg.me-2
+            | Nouveau Meuble
+        .card-body
+          if error
+            .alert.alert-danger= error
+
+          form(action="/furniture", method="POST")
+            .row
+              .col-md-6
+                .mb-3
+                  label.form-label(for="name") Nom du meuble *
+                  input.form-control#name(type="text", name="name", value=formData ? formData.name : '', required)
+                
+                .mb-3
+                  label.form-label(for="category") Catégorie *
+                  select.form-select#category(name="category", required)
+                    option(value="") Sélectionner une catégorie
+                    option(value="Armoire", selected=formData && formData.category === 'Armoire') Armoire
+                    option(value="Etagère", selected=formData && formData.category === 'Etagère') Étagère
+                
+                .mb-3
+                  label.form-label(for="status") Statut
+                  select.form-select#status(name="status")
+                    option(value="Conception", selected=!formData || formData.status === 'Conception') Conception
+                    option(value="En production", selected=formData && formData.status === 'En production') En production
+                    option(value="Terminé", selected=formData && formData.status === 'Terminé') Terminé
+                    option(value="Livré", selected=formData && formData.status === 'Livré') Livré
+
+              .col-md-6
+                .mb-3
+                  label.form-label(for="description") Description
+                  textarea.form-control#description(name="description", rows="3")= formData ? formData.description : ''
+                
+                .mb-3
+                  label.form-label(for="keywords") Mots-clés (séparés par des virgules)
+                  input.form-control#keywords(type="text", name="keywords", value=formData ? formData.keywords : '', placeholder="moderne, minimaliste, bureau...")
+                
+                .mb-3
+                  label.form-label(for="notes") Notes
+                  textarea.form-control#notes(name="notes", rows="3")= formData ? formData.notes : ''
+
+            .card.mt-4
+              .card-header
+                .d-flex.justify-content-between.align-items-center
+                  h5.mb-0
+                    i.bi.bi-box-seam.me-2
+                    | Matériaux
+                  button.btn.btn-sm.btn-outline-primary(type="button", onclick="addMaterial()")
+                    i.bi.bi-plus.me-1
+                    | Ajouter un matériau
+              .card-body
+                #materials-container
+                  .text-muted.text-center.py-3
+                    i.bi.bi-info-circle.me-1
+                    | Cliquez sur "Ajouter un matériau" pour commencer
+
+            .d-flex.justify-content-between.mt-4
+              a.btn.btn-secondary(href="/furniture")
+                i.bi.bi-arrow-left.me-1
+                | Annuler
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-check-lg.me-1
+                | Créer le meuble
+
+block scripts
+  script.
+    let materialIndex = 0;
+    const materials = !{JSON.stringify(materials)};
+
+    function addMaterial() {
+      const container = document.getElementById('materials-container');
+      
+      // Supprimer le message d'info s'il existe
+      const infoMessage = container.querySelector('.text-muted');
+      if (infoMessage) {
+        infoMessage.remove();
+      }
+
+      const materialRow = document.createElement('div');
+      materialRow.className = 'row mb-3 material-row';
+      materialRow.innerHTML = `
+        <div class="col-md-4">
+          <label class="form-label">Matériau</label>
+          <select class="form-select" name="materials[${materialIndex}][material]" onchange="updatePrice(this, ${materialIndex})" required>
+            <option value="">Sélectionner un matériau</option>
+            ${materials.map(material => 
+              `<option value="${material._id}" data-price="${material.unitPrice}">${material.name} (${material.unitPrice.toFixed(2)}€)</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Quantité</label>
+          <input type="number" class="form-control" name="materials[${materialIndex}][quantity]" step="0.01" min="0" onchange="calculateSubtotal(${materialIndex})" required>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Unité</label>
+          <input type="text" class="form-control" name="materials[${materialIndex}][unit]" value="kg" placeholder="kg, m², unité...">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Sous-total</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="text" class="form-control" id="subtotal-${materialIndex}" readonly>
+          </div>
+        </div>
+        <div class="col-md-1">
+          <label class="form-label">&nbsp;</label>
+          <button type="button" class="btn btn-outline-danger d-block" onclick="removeMaterial(this)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      `;
+      
+      container.appendChild(materialRow);
+      materialIndex++;
+    }
+
+    function removeMaterial(button) {
+      button.closest('.material-row').remove();
+      calculateTotal();
+      
+      // Remettre le message d'info si plus de matériaux
+      const container = document.getElementById('materials-container');
+      if (container.children.length === 0) {
+        container.innerHTML = `
+          <div class="text-muted text-center py-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Cliquez sur "Ajouter un matériau" pour commencer
+          </div>
+        `;
+      }
+    }
+
+    function updatePrice(select, index) {
+      const selectedOption = select.options[select.selectedIndex];
+      const price = selectedOption.getAttribute('data-price') || 0;
+      const quantityInput = select.closest('.material-row').querySelector(`input[name="materials[${index}][quantity]"]`);
+      
+      if (quantityInput.value) {
+        calculateSubtotal(index);
+      }
+    }
+
+    function calculateSubtotal(index) {
+      const materialRow = document.querySelector(`select[name="materials[${index}][material]"]`).closest('.material-row');
+      const select = materialRow.querySelector('select');
+      const quantityInput = materialRow.querySelector('input[type="number"]');
+      const subtotalInput = document.getElementById(`subtotal-${index}`);
+      
+      const selectedOption = select.options[select.selectedIndex];
+      const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+      const quantity = parseFloat(quantityInput.value) || 0;
+      
+      const subtotal = price * quantity;
+      subtotalInput.value = subtotal.toFixed(2);
+      
+      calculateTotal();
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      document.querySelectorAll('[id^="subtotal-"]').forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      
+      // Supprimer l'ancien affichage du total s'il existe
+      let totalDisplay = document.getElementById('total-display');
+      if (totalDisplay) {
+        totalDisplay.remove();
+      }
+      
+      // Afficher le total seulement s'il est > 0
+      if (total > 0) {
+        const container = document.getElementById('materials-container');
+        totalDisplay = document.createElement('div');
+        totalDisplay.id = 'total-display';
+        totalDisplay.className = 'text-end mt-3 p-3 bg-light rounded';
+        totalDisplay.innerHTML = `
+          <strong class="fs-5 text-success">
+            <i class="bi bi-calculator me-2"></i>
+            Coût total estimé : ${total.toFixed(2)} €
+          </strong>
+        `;
+        
+        // Toujours ajouter à la fin du conteneur
+        container.appendChild(totalDisplay);
+      }
+    }

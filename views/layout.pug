@@ -62,15 +62,15 @@ html(lang="fr")
 
     // Contenu principal
     main.container-fluid(style="margin-top: 70px;")
-      if error
+      if error && typeof error === 'string'
         .alert.alert-danger.alert-dismissible.fade.show
           = error
-          button.type("button").class("btn-close").data-bs-dismiss("alert")
+          button.btn-close(type="button", data-bs-dismiss="alert")
       
-      if success
+      if success && typeof success === 'string'
         .alert.alert-success.alert-dismissible.fade.show
           = success
-          button.type("button").class("btn-close").data-bs-dismiss("alert")
+          button.btn-close(type="button", data-bs-dismiss="alert")
       
       block content
 

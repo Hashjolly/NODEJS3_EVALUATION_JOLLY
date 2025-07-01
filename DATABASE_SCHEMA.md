@@ -248,12 +248,3 @@ db.users.createIndex({ "username": 1 }, { unique: true })
 // Suppliers
 db.suppliers.createIndex({ "name": 1 }, { unique: true })
 ```
-
-### Requêtes fréquentes optimisées
-1. Recherche textuelle sur meubles et matériaux
-2. Filtrage par catégorie
-3. Statistiques par statut
-4. Jointures matériaux-fournisseurs
-5. Calculs d'utilisation des matériaux
-
-Cette structure de base de données est conçue pour être efficace, évolutive et conforme aux besoins spécifiés dans le cahier des charges.
