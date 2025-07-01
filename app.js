@@ -45,6 +45,7 @@ app.use('/', require('./routes/index'));
 app.use('/auth', require('./routes/auth'));
 app.use('/furniture', require('./routes/furniture'));
 app.use('/materials', require('./routes/materials'));
+app.use('/suppliers', require('./routes/suppliers'));
 app.use('/dashboard', require('./routes/dashboard'));
 
 // Gestion des erreurs 404

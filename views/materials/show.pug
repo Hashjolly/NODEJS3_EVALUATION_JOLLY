@@ -23,7 +23,7 @@ block content
               strong Fournisseur :
               p
                 if material.supplier
-                  a.text-decoration-none(href=`#`)= material.supplier.name
+                  a.text-decoration-none(href=`/suppliers/${material.supplier._id}`)= material.supplier.name
                 else
                   span.text-muted Aucun fournisseur
 

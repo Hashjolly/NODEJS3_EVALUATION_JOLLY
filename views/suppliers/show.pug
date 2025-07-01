@@ -1,0 +1,155 @@
+extends ../layout
+
+block content
+  .row
+    .col-md-8
+      .card
+        .card-body
+          .d-flex.justify-content-between.align-items-start.mb-3
+            div
+              h1.card-title= supplier.name
+              if supplier.description
+                p.text-muted.mb-2= supplier.description
+              else
+                p.text-muted.mb-2.fst-italic Aucune description
+
+          if supplier.contact && (supplier.contact.email || supplier.contact.phone || supplier.contact.address)
+            .row.mb-4
+              .col-12
+                h5
+                  i.bi.bi-person-lines-fill.me-2
+                  | Informations de contact
+                .card.bg-light
+                  .card-body
+                    if supplier.contact.email
+                      .row.mb-2
+                        .col-sm-3
+                          strong Email :
+                        .col-sm-9
+                          a(href=`mailto:${supplier.contact.email}`)= supplier.contact.email
+                    if supplier.contact.phone
+                      .row.mb-2
+                        .col-sm-3
+                          strong Téléphone :
+                        .col-sm-9
+                          a(href=`tel:${supplier.contact.phone}`)= supplier.contact.phone
+                    if supplier.contact.address
+                      .row.mb-2
+                        .col-sm-3
+                          strong Adresse :
+                        .col-sm-9= supplier.contact.address
+
+          .row.mb-3
+            .col-sm-6
+              strong Date de création :
+              p= supplier.createdAt.toLocaleDateString()
+            .col-sm-6
+              strong Dernière modification :
+              p= supplier.updatedAt.toLocaleDateString()
+
+    .col-md-4
+      .card.mb-3
+        .card-header
+          h5.mb-0
+            i.bi.bi-tools.me-2
+            | Actions
+        .card-body
+          .d-grid.gap-2
+            a.btn.btn-warning(href=`/suppliers/${supplier._id}/edit`)
+              i.bi.bi-pencil.me-1
+              | Modifier ce fournisseur
+            button.btn.btn-danger(onclick=`deleteSupplier('${supplier._id}', '${supplier.name}')`)
+              i.bi.bi-trash.me-1
+              | Supprimer ce fournisseur
+            a.btn.btn-outline-secondary(href="/suppliers")
+              i.bi.bi-arrow-left.me-1
+              | Retour à la liste
+
+  .row.mt-4
+    .col-12
+      .card
+        .card-header
+          h5.mb-0
+            i.bi.bi-box-seam.me-2
+            | Matériaux fournis
+        .card-body
+          if materials && materials.length > 0
+            .table-responsive
+              table.table.table-hover
+                thead
+                  tr
+                    th Nom
+                    th Catégorie
+                    th Type
+                    th Prix unitaire
+                    th Unité
+                    th Actions
+                tbody
+                  each material in materials
+                    tr
+                      td
+                        strong= material.name
+                      td
+                        span.badge.bg-secondary= material.category
+                      td= material.type
+                      td.text-success= `${material.unitPrice.toFixed(2)} €`
+                      td= material.unit
+                      td
+                        a.btn.btn-sm.btn-outline-primary(href=`/materials/${material._id}`)
+                          i.bi.bi-eye.me-1
+                          | Voir
+          else
+            .text-center.py-4
+              i.bi.bi-inbox.display-4.text-muted
+              p.text-muted.mt-2 Aucun matériau fourni par ce fournisseur
+              a.btn.btn-outline-primary(href="/materials/new")
+                i.bi.bi-plus-circle.me-1
+                | Ajouter un matériau
+
+  // Messages de succès
+  if success
+    script.
+      const urlParams = new URLSearchParams(window.location.search);
+      const successMessage = urlParams.get('success');
+      if (successMessage) {
+        // Créer l'alerte
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          ${successMessage}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Insérer au début du contenu principal
+        const main = document.querySelector('main .row');
+        main.parentNode.insertBefore(alertDiv, main);
+        
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+block scripts
+  script.
+    function deleteSupplier(id, name) {
+      if (confirm(`Êtes-vous sûr de vouloir supprimer le fournisseur "${name}" ?\n\nCette action est irréversible.`)) {
+        fetch(`/suppliers/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            window.location.href = '/suppliers';
+          } else {
+            alert(data.message || 'Erreur lors de la suppression');
+          }
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          alert('Erreur lors de la suppression');
+        });
+      }
+    }

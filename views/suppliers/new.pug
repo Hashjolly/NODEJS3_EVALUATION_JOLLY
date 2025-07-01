@@ -1,0 +1,62 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-md-8
+      .card
+        .card-header
+          h2.mb-0
+            i.bi.bi-building-add.me-2
+            | Nouveau Fournisseur
+        .card-body
+          if error
+            .alert.alert-danger.alert-dismissible.fade.show
+              = error
+              button.btn-close(type="button", data-bs-dismiss="alert")
+
+          form(method="POST", action="/suppliers")
+            .row.mb-3
+              .col-12
+                label.form-label(for="name") Nom du fournisseur
+                  span.text-danger *
+                input.form-control(type="text", id="name", name="name", value=formData ? formData.name : "", required)
+                .form-text Nom unique du fournisseur
+
+            .mb-3
+              label.form-label(for="description") Description
+              textarea.form-control(id="description", name="description", rows="3", placeholder="Description du fournisseur...")= formData ? formData.description : ""
+
+            .card.mb-4
+              .card-header
+                h5.mb-0
+                  i.bi.bi-person-lines-fill.me-2
+                  | Informations de contact
+              .card-body
+                .row.mb-3
+                  .col-md-6
+                    label.form-label(for="email") Email
+                    input.form-control(type="email", id="email", name="email", value=formData ? formData.email : "", placeholder="contact@fournisseur.com")
+                  .col-md-6
+                    label.form-label(for="phone") Téléphone
+                    input.form-control(type="tel", id="phone", name="phone", value=formData ? formData.phone : "", placeholder="01 23 45 67 89")
+
+                .mb-3
+                  label.form-label(for="address") Adresse
+                  textarea.form-control(id="address", name="address", rows="2", placeholder="Adresse complète...")= formData ? formData.address : ""
+
+            .d-grid.gap-2.d-md-flex.justify-content-md-end
+              a.btn.btn-outline-secondary(href="/suppliers")
+                i.bi.bi-arrow-left.me-1
+                | Annuler
+              button.btn.btn-primary(type="submit")
+                i.bi.bi-check-circle.me-1
+                | Créer le fournisseur
+
+          .mt-4
+            .alert.alert-info
+              i.bi.bi-info-circle.me-2
+              strong Informations :
+              ul.mb-0.mt-2
+                li Les champs marqués d'un astérisque (*) sont obligatoires
+                li Le nom du fournisseur doit être unique
+                li Les informations de contact sont optionnelles
