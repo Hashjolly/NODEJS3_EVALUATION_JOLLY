@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Furniture = require('../models/Furniture');
 const Material = require('../models/Material');
+const Supplier = require('../models/Supplier');
 
 // Page d'accueil
 router.get('/', async (req, res) => {
@@ -36,19 +37,45 @@ router.get('/search', async (req, res) => {
   }
 
   try {
+    // Recherche dans les meubles
     const furniture = await Furniture.find({
-      $text: { $search: q }
-    }).populate('materials.material').limit(20);
+      $or: [
+        { name: new RegExp(q, 'i') },
+        { description: new RegExp(q, 'i') },
+        { category: new RegExp(q, 'i') },
+        { notes: new RegExp(q, 'i') },
+        { keywords: { $in: [new RegExp(q, 'i')] } }
+      ]
+    }).populate('materials.material').limit(10);
 
+    // Recherche dans les matériaux
     const materials = await Material.find({
-      $text: { $search: q }
-    }).populate('supplier').limit(20);
+      $or: [
+        { name: new RegExp(q, 'i') },
+        { description: new RegExp(q, 'i') },
+        { category: new RegExp(q, 'i') },
+        { type: new RegExp(q, 'i') },
+        { keywords: { $in: [new RegExp(q, 'i')] } }
+      ]
+    }).populate('supplier').limit(10);
+
+    // Recherche dans les fournisseurs
+    const suppliers = await Supplier.find({
+      $or: [
+        { name: new RegExp(q, 'i') },
+        { description: new RegExp(q, 'i') },
+        { 'contact.email': new RegExp(q, 'i') },
+        { 'contact.phone': new RegExp(q, 'i') },
+        { 'contact.address': new RegExp(q, 'i') }
+      ]
+    }).limit(10);
 
     res.render('search', {
       title: `Résultats pour "${q}"`,
       query: q,
       furniture,
-      materials
+      materials,
+      suppliers
     });
   } catch (error) {
     console.error(error);
