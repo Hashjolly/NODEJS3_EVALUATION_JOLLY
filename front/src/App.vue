@@ -44,6 +44,12 @@ body {
   padding: 0 1rem;
 }
 
+.container-fluid {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 .text-center {
   text-align: center;
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="materials-page">
-    <div class="container">
+    <div class="container-fluid">
       <!-- Header -->
       <div class="page-header">
         <h1>🧱 Nos Matériaux</h1>
@@ -67,12 +67,12 @@
                 <span class="property-tag type-tag">
                   {{ material.type }}
                 </span>
-                <span class="property-tag">{{ material.texture }}</span>
+                <span class="property-tag">{{ material.unit }}</span>
               </div>
               <div class="material-footer">
                 <div class="price">{{ formatPrice(material.unitPrice) }}/{{ material.unit }}</div>
-                <div class="stock-status" :class="{ 'in-stock': material.inStock, 'out-of-stock': !material.inStock }">
-                  {{ material.inStock ? '✅ En stock' : '❌ Rupture' }}
+                <div class="stock-status in-stock">
+                  ✅ Disponible
                 </div>
               </div>
             </div>
@@ -151,7 +151,7 @@ const filteredMaterials = computed(() => {
       item.name.toLowerCase().includes(query) ||
       item.description.toLowerCase().includes(query) ||
       item.type.toLowerCase().includes(query) ||
-      item.texture.toLowerCase().includes(query)
+      item.category.toLowerCase().includes(query)
     )
   }
 
@@ -370,8 +370,8 @@ onMounted(() => {
 
 .materials-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 3rem;
 }
 

@@ -60,6 +60,8 @@ const closeMenu = () => {
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: 5vh;
+  display: flex;
 }
 
 .navbar-container {
@@ -83,6 +85,7 @@ const closeMenu = () => {
 
 .brand-link h1 {
   margin: 0;
+  margin-right: 2rem;
   font-size: 1.5rem;
   font-weight: bold;
 }

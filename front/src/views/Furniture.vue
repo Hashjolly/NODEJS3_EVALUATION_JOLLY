@@ -1,6 +1,6 @@
 <template>
   <div class="furniture-page">
-    <div class="container">
+    <div class="container-fluid">
       <!-- Header -->
       <div class="page-header">
         <h1>🪑 Nos Meubles</h1>
@@ -345,8 +345,8 @@ onMounted(() => {
 
 .furniture-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 3rem;
 }
 

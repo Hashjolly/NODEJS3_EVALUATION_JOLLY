@@ -86,9 +86,8 @@
             :key="item._id"
             :title="item.name"
             :description="item.description"
-            :price="item.price"
+            :price="item.totalCost"
             :category="item.category"
-            :image-url="item.imageUrl"
             @click="viewFurniture(item._id)"
           />
         </div>
@@ -149,10 +148,10 @@ onMounted(async () => {
 .hero {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 4rem 2rem;
+  padding: 4rem 8rem;
   display: flex;
   align-items: center;
-  min-height: 60vh;
+  min-height: 50vh;
 }
 
 .hero-content {

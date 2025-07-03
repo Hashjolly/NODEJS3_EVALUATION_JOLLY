@@ -49,8 +49,8 @@
               <h1>{{ furniture.name }}</h1>
               <div class="furniture-meta">
                 <span class="category">{{ furniture.category }}</span>
-                <span class="stock-status" :class="{ 'in-stock': furniture.inStock, 'out-of-stock': !furniture.inStock }">
-                  {{ furniture.inStock ? '✅ En stock' : '❌ Rupture de stock' }}
+                <span class="stock-status" :class="{ 'in-stock': isAvailable, 'out-of-stock': !isAvailable }">
+                  {{ getStockStatus() }}
                 </span>
               </div>
             </div>
@@ -87,8 +87,8 @@
             </div>
 
             <div class="actions">
-              <button class="btn btn-primary" :disabled="!furniture.inStock">
-                {{ furniture.inStock ? '📞 Nous contacter' : 'Indisponible' }}
+              <button class="btn btn-primary" :disabled="!isAvailable">
+                {{ isAvailable ? '📞 Nous contacter' : 'Indisponible' }}
               </button>
               <router-link to="/contact" class="btn btn-secondary">
                 💬 Demander un devis
@@ -153,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { furnitureService, type Furniture } from '../services/api'
 
@@ -185,6 +185,29 @@ const viewMaterial = (id: string) => {
 
 const viewSupplier = (id: string) => {
   router.push(`/suppliers/${id}`)
+}
+
+const isAvailable = computed(() => {
+  if (!furniture.value) return false
+  // Un meuble est disponible s'il est terminé ou livré
+  return furniture.value.status === 'Terminé' || furniture.value.status === 'Livré'
+})
+
+const getStockStatus = () => {
+  if (!furniture.value) return 'Indisponible'
+  
+  switch (furniture.value.status) {
+    case 'Conception':
+      return 'En conception'
+    case 'En production':
+      return 'En cours de production'
+    case 'Terminé':
+      return 'Disponible'
+    case 'Livré':
+      return 'Livré'
+    default:
+      return 'Indisponible'
+  }
 }
 
 onMounted(async () => {

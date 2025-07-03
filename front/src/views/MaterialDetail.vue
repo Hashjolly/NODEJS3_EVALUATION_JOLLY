@@ -38,15 +38,6 @@
               <div class="property" v-if="'unitPrice' in item && item.unitPrice">
                 <strong>Prix:</strong> {{ formatPrice(item.unitPrice) }}{{ 'unit' in item && item.unit ? '/' + item.unit : '' }}
               </div>
-              <div class="property" v-if="'contact' in item && item.contact">
-                <strong>Email:</strong> {{ item.contact.email }}
-              </div>
-              <div class="property" v-if="'contact' in item && item.contact">
-                <strong>Téléphone:</strong> {{ item.contact.phone }}
-              </div>
-              <div class="property" v-if="'contact' in item && item.contact">
-                <strong>Adresse:</strong> {{ item.contact.address }}
-              </div>
             </div>
 
             <div class="actions">

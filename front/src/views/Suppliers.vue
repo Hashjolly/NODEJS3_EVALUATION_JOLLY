@@ -1,6 +1,6 @@
 <template>
   <div class="suppliers-page">
-    <div class="container">
+    <div class="container-fluid">
       <div class="page-header">
         <h1>🏭 Nos Fournisseurs</h1>
         <p>Découvrez nos partenaires de confiance</p>
@@ -148,8 +148,8 @@ onMounted(() => {
 
 .suppliers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
 }
 
 .supplier-card {
