@@ -3,10 +3,10 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Import des modèles
-const User = require('./models/User');
-const Supplier = require('./models/Supplier');
-const Material = require('./models/Material');
-const Furniture = require('./models/Furniture');
+const User = require('./back/models/User');
+const Supplier = require('./back/models/Supplier');
+const Material = require('./back/models/Material');
+const Furniture = require('./back/models/Furniture');
 
 // Connexion à la base de données
 const connectDB = async () => {

@@ -1,0 +1,24 @@
+{
+  "name": "furniture-management-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Frontend Vue.js pour l'application de gestion des meubles",
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview --port 4173",
+    "lint": "echo \"Linting not configured\"",
+    "test": "echo \"Testing not configured\""
+  },
+  "dependencies": {
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "@vue/tsconfig": "^0.7.0",
+    "typescript": "~5.8.3",
+    "vite": "^5.0.0",
+    "vue-tsc": "^2.2.10"
+  }
+}

@@ -1,8 +1,57 @@
+# Dependencies
 node_modules/
+back/node_modules/
+front/node_modules/
+front/dist/
+
+# Environment variables
 .env
-uploads/
+back/.env
+front/.env
+.env.local
+.env.production
+
+# Logs
 *.log
-.DS_Store
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+back/*.log
+front/*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# IDE files
 .vscode/
-dist/
-build/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs
+back/uploads/
+back/dist/
+back/build/
+front/dist/
+front/build/
+
+# Temporary folders
+tmp/
+temp/

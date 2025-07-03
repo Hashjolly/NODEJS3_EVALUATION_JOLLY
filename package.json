@@ -1,33 +1,58 @@
 {
-  "name": "furniture-management-app",
+  "name": "furniture-management-fullstack",
   "version": "1.0.0",
-  "description": "Application de gestion de meubles et matériaux pour designer",
-  "main": "app.js",
+  "description": "Application complète de gestion des meubles avec front-end et back-end",
+  "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "create-admin": "node create-admin.js",
-    "create-test-users": "node create-admin.js --test-users",
-    "migrate-users": "node migrate-users.js",
-    "setup": "npm run migrate-users && npm run create-admin"
+    "install:all": "npm install && npm run install:back && npm run install:front",
+    "install:back": "cd back && npm install",
+    "install:front": "cd front && npm install",
+    "dev": "concurrently \"npm run dev:back\" \"npm run dev:front\"",
+    "dev:back": "cd back && npm run dev",
+    "dev:front": "cd front && npm run dev",
+    "start": "concurrently \"npm run start:back\" \"npm run start:front\"",
+    "start:back": "cd back && npm start",
+    "start:front": "cd front && npm run build && npm run preview",
+    "build": "npm run build:front",
+    "build:front": "cd front && npm run build",
+    "setup": "npm run install:all && npm run setup:back",
+    "setup:back": "cd back && npm run setup",
+    "init-db": "cd back && npm run init-db",
+    "create-admin": "cd back && npm run create-admin",
+    "create-test-users": "cd back && npm run create-test-users",
+    "migrate-users": "cd back && npm run migrate-users",
+    "lint": "npm run lint:back && npm run lint:front",
+    "lint:back": "cd back && npm run lint",
+    "lint:front": "cd front && npm run lint",
+    "test": "npm run test:back && npm run test:front",
+    "test:back": "cd back && npm test",
+    "test:front": "cd front && npm test",
+    "clean": "npm run clean:back && npm run clean:front",
+    "clean:back": "cd back && rm -rf node_modules package-lock.json",
+    "clean:front": "cd front && rm -rf node_modules package-lock.json dist",
+    "postinstall": "echo '✅ Installation terminée! Utilisez npm run dev pour démarrer les serveurs'"
   },
-  "keywords": ["furniture", "materials", "design", "management"],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.18.2",
-    "mongoose": "^7.5.0",
-    "pug": "^3.0.2",
-    "bcryptjs": "^2.4.3",
-    "express-session": "^1.17.3",
-    "connect-mongo": "^5.0.0",
-    "dotenv": "^16.3.1",
-    "multer": "^1.4.3",
-    "express-validator": "^7.0.1",
-    "method-override": "^3.0.0"
-  },
+  "keywords": [
+    "furniture",
+    "management",
+    "nodejs",
+    "express",
+    "vue",
+    "vite",
+    "mongodb",
+    "fullstack"
+  ],
+  "author": "Votre Nom",
+  "license": "MIT",
   "devDependencies": {
-    "nodemon": "^3.0.1"
-  }
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "workspaces": [
+    "back",
+    "front"
+  ]
 }
