@@ -4,12 +4,19 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const path = require('path');
 const methodOverride = require('method-override');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
 
 // Configuration de la base de données
 require('./config/database');
+
+// Configuration CORS
+app.use(cors({
+  origin: 'http://localhost:5173', // URL du frontend Vite
+  credentials: true
+}));
 
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
@@ -48,6 +55,9 @@ app.use('/materials', require('./routes/materials'));
 app.use('/suppliers', require('./routes/suppliers'));
 app.use('/dashboard', require('./routes/dashboard'));
 app.use('/users', require('./routes/users'));
+
+// Routes API pour le frontend
+app.use('/api', require('./routes/api'));
 
 // Gestion des erreurs 404
 app.use((req, res) => {
