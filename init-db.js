@@ -34,9 +34,16 @@ const initData = async () => {
     // Créer un utilisateur admin
     const adminUser = new User({
       username: 'admin',
+      email: 'admin@example.com',
       password: 'admin123',
+      firstName: 'Administrateur',
+      lastName: 'Système',
       role: 'admin'
     });
+    
+    // Définir les permissions d'admin
+    adminUser.setDefaultPermissions();
+    
     await adminUser.save();
     console.log('Utilisateur admin créé');
 

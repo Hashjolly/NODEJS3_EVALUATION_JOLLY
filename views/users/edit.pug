@@ -1,0 +1,221 @@
+extends ../layout
+
+block content
+  .row.justify-content-center
+    .col-md-10
+      .card.shadow
+        .card-header.bg-warning.text-dark
+          h4.mb-0
+            i.bi.bi-person-gear.me-2
+            | Modifier l'utilisateur: #{user.firstName} #{user.lastName}
+        .card-body
+          if error
+            .alert.alert-danger.alert-dismissible.fade.show
+              = error
+              button.btn-close(type="button" data-bs-dismiss="alert")
+
+          form(method="POST" action=`/users/${user._id}?_method=PUT`)
+            .row
+              .col-md-8
+                .card.mb-4
+                  .card-header
+                    h6.mb-0
+                      i.bi.bi-person.me-2
+                      | Informations personnelles
+                  .card-body
+                    .row
+                      .col-md-6
+                        .mb-3
+                          label.form-label(for="firstName") Prénom *
+                          input.form-control(type="text" id="firstName" name="firstName" required maxlength="50" value=user.firstName)
+                      .col-md-6
+                        .mb-3
+                          label.form-label(for="lastName") Nom *
+                          input.form-control(type="text" id="lastName" name="lastName" required maxlength="50" value=user.lastName)
+                    
+                    .row
+                      .col-md-6
+                        .mb-3
+                          label.form-label(for="username") Nom d'utilisateur *
+                          input.form-control(type="text" id="username" name="username" required minlength="3" maxlength="30" value=user.username)
+                      .col-md-6
+                        .mb-3
+                          label.form-label(for="email") Email *
+                          input.form-control(type="email" id="email" name="email" required value=user.email)
+                    
+                    .mb-3
+                      label.form-label(for="password") Nouveau mot de passe
+                      input.form-control(type="password" id="password" name="password" minlength="6")
+                      .form-text Laissez vide pour conserver le mot de passe actuel
+
+                .card.mb-4
+                  .card-header
+                    h6.mb-0
+                      i.bi.bi-shield.me-2
+                      | Rôle et permissions
+                  .card-body
+                    .row
+                      .col-md-6
+                        .mb-3
+                          label.form-label(for="role") Rôle
+                          select.form-select(id="role" name="role" onchange="updatePermissions()")
+                            each role in roles
+                              option(value=role selected=user.role === role)
+                                if role === 'admin'
+                                  | Administrateur
+                                else if role === 'manager'
+                                  | Manager
+                                else
+                                  | Utilisateur
+                      .col-md-6
+                        .mb-3
+                          .form-check.form-switch
+                            input.form-check-input(type="checkbox" id="isActive" name="isActive" checked=user.isActive)
+                            label.form-check-label(for="isActive") Compte actif
+
+                    .mb-3
+                      label.form-label Permissions spécifiques
+                      .form-text.mb-3 Sélectionnez les permissions individuelles (les administrateurs ont automatiquement toutes les permissions)
+                      
+                      .row
+                        .col-md-4
+                          h6.text-primary Meubles
+                          each permission in allPermissions.filter(p => p.includes('furniture'))
+                            .form-check
+                              input.form-check-input(type="checkbox" name="permissions" value=permission checked=user.permissions.includes(permission) id=permission)
+                              label.form-check-label(for=permission)
+                                if permission === 'read_furniture'
+                                  | Lecture
+                                else if permission === 'write_furniture'
+                                  | Écriture
+                                else if permission === 'delete_furniture'
+                                  | Suppression
+                        
+                        .col-md-4
+                          h6.text-success Matériaux
+                          each permission in allPermissions.filter(p => p.includes('materials'))
+                            .form-check
+                              input.form-check-input(type="checkbox" name="permissions" value=permission checked=user.permissions.includes(permission) id=permission)
+                              label.form-check-label(for=permission)
+                                if permission === 'read_materials'
+                                  | Lecture
+                                else if permission === 'write_materials'
+                                  | Écriture
+                                else if permission === 'delete_materials'
+                                  | Suppression
+                        
+                        .col-md-4
+                          h6.text-warning Fournisseurs
+                          each permission in allPermissions.filter(p => p.includes('suppliers'))
+                            .form-check
+                              input.form-check-input(type="checkbox" name="permissions" value=permission checked=user.permissions.includes(permission) id=permission)
+                              label.form-check-label(for=permission)
+                                if permission === 'read_suppliers'
+                                  | Lecture
+                                else if permission === 'write_suppliers'
+                                  | Écriture
+                                else if permission === 'delete_suppliers'
+                                  | Suppression
+                      
+                      .row.mt-3
+                        .col-md-6
+                          h6.text-danger Utilisateurs
+                          each permission in allPermissions.filter(p => p.includes('users'))
+                            .form-check
+                              input.form-check-input(type="checkbox" name="permissions" value=permission checked=user.permissions.includes(permission) id=permission)
+                              label.form-check-label(for=permission)
+                                if permission === 'read_users'
+                                  | Lecture
+                                else if permission === 'write_users'
+                                  | Écriture
+                                else if permission === 'delete_users'
+                                  | Suppression
+                        
+                        .col-md-6
+                          h6.text-info Administration
+                          each permission in allPermissions.filter(p => p.includes('admin'))
+                            .form-check
+                              input.form-check-input(type="checkbox" name="permissions" value=permission checked=user.permissions.includes(permission) id=permission)
+                              label.form-check-label(for=permission)
+                                if permission === 'admin_dashboard'
+                                  | Tableau de bord admin
+
+              .col-md-4
+                .card.sticky-top
+                  .card-header
+                    h6.mb-0
+                      i.bi.bi-info-circle.me-2
+                      | Informations
+                  .card-body
+                    .mb-3
+                      strong Créé le:
+                      p.small.mb-0= new Date(user.createdAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    
+                    .mb-3
+                      strong Dernière modification:
+                      p.small.mb-0= new Date(user.updatedAt).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    
+                    if user.lastLogin
+                      .mb-3
+                        strong Dernière connexion:
+                        p.small.mb-0= new Date(user.lastLogin).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    
+                    .alert.alert-warning.small
+                      i.bi.bi-exclamation-triangle.me-2
+                      | Les modifications seront appliquées immédiatement. Si vous modifiez votre propre compte, vous devrez peut-être vous reconnecter.
+
+            .card-footer.d-flex.justify-content-between
+              .btn-group
+                a.btn.btn-secondary(href=`/users/${user._id}`)
+                  i.bi.bi-arrow-left.me-2
+                  | Annuler
+                a.btn.btn-outline-info(href="/users")
+                  i.bi.bi-list.me-2
+                  | Liste des utilisateurs
+              button.btn.btn-warning(type="submit")
+                i.bi.bi-check-lg.me-2
+                | Enregistrer les modifications
+
+block scripts
+  script.
+    function updatePermissions() {
+      const role = document.getElementById('role').value;
+      const checkboxes = document.querySelectorAll('input[name="permissions"]');
+      
+      // Désactiver les checkboxes pour les admins (ils ont tout)
+      if (role === 'admin') {
+        checkboxes.forEach(cb => {
+          cb.checked = true;
+          cb.disabled = true;
+        });
+      } else {
+        checkboxes.forEach(cb => {
+          cb.disabled = false;
+        });
+        
+        // Définir les permissions par défaut selon le rôle
+        if (role === 'manager') {
+          const managerPermissions = ['read_furniture', 'write_furniture', 'read_materials', 'write_materials', 'read_suppliers', 'write_suppliers', 'read_users'];
+          checkboxes.forEach(cb => {
+            cb.checked = managerPermissions.includes(cb.value);
+          });
+        } else if (role === 'user') {
+          const userPermissions = ['read_furniture', 'read_materials', 'read_suppliers'];
+          checkboxes.forEach(cb => {
+            cb.checked = userPermissions.includes(cb.value);
+          });
+        }
+      }
+    }
+    
+    // Validation en temps réel
+    document.getElementById('username').addEventListener('input', function() {
+      this.value = this.value.replace(/\s/g, '').toLowerCase();
+    });
+    
+    document.getElementById('email').addEventListener('input', function() {
+      this.value = this.value.toLowerCase();
+    });
+    
+    // Initialiser les permissions au chargement
+    updatePermissions();

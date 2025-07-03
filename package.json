@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "create-admin": "node create-admin.js",
+    "create-test-users": "node create-admin.js --test-users",
+    "migrate-users": "node migrate-users.js",
+    "setup": "npm run migrate-users && npm run create-admin"
   },
   "keywords": ["furniture", "materials", "design", "management"],
   "author": "",

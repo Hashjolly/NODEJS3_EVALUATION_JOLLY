@@ -1,0 +1,180 @@
+extends ../layout
+
+block content
+  .d-flex.justify-content-between.align-items-center.mb-4
+    h1.h3
+      i.bi.bi-people.me-2
+      | Gestion des utilisateurs
+    if locals.user && (locals.user.role === 'admin' || (locals.user.permissions && locals.user.permissions.includes('write_users')))
+      a.btn.btn-primary(href="/users/new")
+        i.bi.bi-person-plus.me-2
+        | Nouvel utilisateur
+
+  // Filtres et recherche
+  .card.mb-4
+    .card-body
+      form.row.g-3(method="GET")
+        .col-md-4
+          label.form-label(for="search") Rechercher
+          input.form-control(type="text" id="search" name="search" placeholder="Nom, email, nom d'utilisateur..." value=searchQuery)
+        .col-md-3
+          label.form-label(for="role") Rôle
+          select.form-select(id="role" name="role")
+            option(value="" selected=!roleFilter) Tous les rôles
+            option(value="admin" selected=roleFilter==='admin') Administrateur
+            option(value="manager" selected=roleFilter==='manager') Manager
+            option(value="user" selected=roleFilter==='user') Utilisateur
+        .col-md-3
+          label.form-label(for="status") Statut
+          select.form-select(id="status" name="status")
+            option(value="" selected=!statusFilter) Tous les statuts
+            option(value="active" selected=statusFilter==='active') Actif
+            option(value="inactive" selected=statusFilter==='inactive') Inactif
+        .col-md-2.d-flex.align-items-end
+          button.btn.btn-outline-primary.w-100(type="submit")
+            i.bi.bi-search.me-2
+            | Filtrer
+
+  // Messages
+  if message === 'user_created'
+    .alert.alert-success.alert-dismissible.fade.show
+      | Utilisateur créé avec succès !
+      button.btn-close(type="button" data-bs-dismiss="alert")
+  
+  if message === 'user_updated'
+    .alert.alert-success.alert-dismissible.fade.show
+      | Utilisateur mis à jour avec succès !
+      button.btn-close(type="button" data-bs-dismiss="alert")
+
+  // Statistiques
+  .row.mb-4
+    .col-md-3
+      .card.text-center
+        .card-body
+          h5.card-title.text-primary= totalUsers
+          p.card-text Total utilisateurs
+    .col-md-3
+      .card.text-center
+        .card-body
+          h5.card-title.text-success= users.filter(u => u.isActive).length
+          p.card-text Utilisateurs actifs
+    .col-md-3
+      .card.text-center
+        .card-body
+          h5.card-title.text-warning= users.filter(u => u.role === 'admin').length
+          p.card-text Administrateurs
+    .col-md-3
+      .card.text-center
+        .card-body
+          h5.card-title.text-info= users.filter(u => u.role === 'manager').length
+          p.card-text Managers
+
+  // Liste des utilisateurs
+  .card
+    .card-header.d-flex.justify-content-between.align-items-center
+      h5.mb-0
+        i.bi.bi-list.me-2
+        | Liste des utilisateurs
+      small.text-muted= `Page ${currentPage} sur ${totalPages}`
+    .card-body
+      if users.length > 0
+        .table-responsive
+          table.table.table-hover
+            thead.table-light
+              tr
+                th Avatar
+                th Nom complet
+                th Nom d'utilisateur
+                th Email
+                th Rôle
+                th Statut
+                th Dernière connexion
+                th Actions
+            tbody
+              each user in users
+                tr
+                  td
+                    .bg-primary.rounded-circle.d-flex.align-items-center.justify-content-center.text-white(style="width: 40px; height: 40px; font-weight: bold;")
+                      = user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase()
+                  td
+                    strong= user.firstName + ' ' + user.lastName
+                  td= user.username
+                  td= user.email
+                  td
+                    if user.role === 'admin'
+                      span.badge.bg-danger.fs-6 Administrateur
+                    else if user.role === 'manager'
+                      span.badge.bg-warning.fs-6 Manager
+                    else
+                      span.badge.bg-secondary.fs-6 Utilisateur
+                  td
+                    if user.isActive
+                      span.badge.bg-success.fs-6
+                        i.bi.bi-check-circle.me-1
+                        | Actif
+                    else
+                      span.badge.bg-danger.fs-6
+                        i.bi.bi-x-circle.me-1
+                        | Inactif
+                  td
+                    if user.lastLogin
+                      = new Date(user.lastLogin).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+                    else
+                      span.text-muted Jamais connecté
+                  td
+                    .btn-group.btn-group-sm
+                      a.btn.btn-outline-primary(href=`/users/${user._id}` title="Voir")
+                        i.bi.bi-eye
+                      if locals.user && (locals.user.role === 'admin' || (locals.user.permissions && locals.user.permissions.includes('write_users')))
+                        a.btn.btn-outline-warning(href=`/users/${user._id}/edit` title="Modifier")
+                          i.bi.bi-pencil
+                      if locals.user && (locals.user.role === 'admin' || (locals.user.permissions && locals.user.permissions.includes('delete_users')))
+                        button.btn.btn-outline-danger(onclick=`deleteUser('${user._id}', '${user.firstName} ${user.lastName}')` title="Supprimer")
+                          i.bi.bi-trash
+      else
+        .text-center.py-4
+          i.bi.bi-people.display-1.text-muted.mb-3
+          h5.text-muted Aucun utilisateur trouvé
+          p.text-muted Essayez de modifier vos critères de recherche ou créez un nouvel utilisateur.
+
+    // Pagination
+    if totalPages > 1
+      .card-footer
+        nav
+          ul.pagination.justify-content-center.mb-0
+            li.page-item(class=hasPrevPage ? '' : 'disabled')
+              a.page-link(href=hasPrevPage ? `/users?page=${prevPage}&search=${searchQuery}&role=${roleFilter}&status=${statusFilter}` : '#')
+                | Précédent
+            
+            - for (let i = 1; i <= totalPages; i++)
+              li.page-item(class=i === currentPage ? 'active' : '')
+                a.page-link(href=`/users?page=${i}&search=${searchQuery}&role=${roleFilter}&status=${statusFilter}`)= i
+            
+            li.page-item(class=hasNextPage ? '' : 'disabled')
+              a.page-link(href=hasNextPage ? `/users?page=${nextPage}&search=${searchQuery}&role=${roleFilter}&status=${statusFilter}` : '#')
+                | Suivant
+
+block scripts
+  script.
+    function deleteUser(userId, userName) {
+      if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${userName}" ? Cette action est irréversible.`)) {
+        fetch(`/users/${userId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            location.reload();
+          } else {
+            alert(data.error || 'Erreur lors de la suppression');
+          }
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          alert('Erreur lors de la suppression');
+        });
+      }
+    }

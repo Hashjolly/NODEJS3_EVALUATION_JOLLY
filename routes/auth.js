@@ -17,16 +17,28 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ 
+      $or: [{ username }, { email: username }],
+      isActive: true 
+    });
+    
     if (!user || !(await user.comparePassword(password))) {
-      req.session.error = 'Nom d\'utilisateur ou mot de passe incorrect';
+      req.session.error = 'Nom d\'utilisateur/email ou mot de passe incorrect';
       return res.redirect('/auth/login');
     }
+
+    // Mettre à jour la dernière connexion
+    user.lastLogin = new Date();
+    await user.save();
 
     req.session.user = {
       id: user._id,
       username: user.username,
-      role: user.role
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      permissions: user.permissions
     };
 
     res.redirect('/dashboard');

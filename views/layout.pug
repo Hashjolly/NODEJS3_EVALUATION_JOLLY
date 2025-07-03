@@ -39,6 +39,11 @@ html(lang="fr")
                 a.nav-link(href="/materials") Matériaux
               li.nav-item
                 a.nav-link(href="/suppliers") Fournisseurs
+              if user.role === 'admin' || (user.permissions && user.permissions.includes('read_users'))
+                li.nav-item
+                  a.nav-link(href="/users")
+                    i.bi.bi-people.me-1
+                    | Utilisateurs
           
           // Barre de recherche
           form.d-flex.me-3(action="/search", method="GET")

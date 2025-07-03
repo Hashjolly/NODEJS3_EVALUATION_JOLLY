@@ -39,12 +39,71 @@ block content
             i.bi.bi-building.display-4.text-primary.opacity-25
     
     .col-md-3.mb-3
+      .card.dashboard-card.info
+        .card-body
+          .d-flex.justify-content-between.align-items-center
+            div
+              h2.text-info.mb-0= stats.totalUsers
+              p.card-text.mb-0 Utilisateurs
+            i.bi.bi-people.display-4.text-info.opacity-25
+  
+  // Statistiques des utilisateurs (pour les admins)
+  if userStats
+    .row.mb-4
+      .col-md-12
+        .card
+          .card-header.bg-primary.text-white
+            h5.mb-0
+              i.bi.bi-people.me-2
+              | Gestion des utilisateurs
+          .card-body
+            .row
+              .col-md-8
+                .row
+                  .col-md-3.text-center
+                    h4.text-success= userStats.active
+                    p.text-muted Utilisateurs actifs
+                  .col-md-3.text-center
+                    h4.text-danger= userStats.inactive
+                    p.text-muted Utilisateurs inactifs
+                  .col-md-2.text-center
+                    h4.text-primary= userStats.admins
+                    p.text-muted Admins
+                  .col-md-2.text-center
+                    h4.text-warning= userStats.managers
+                    p.text-muted Managers
+                  .col-md-2.text-center
+                    h4.text-secondary= userStats.users
+                    p.text-muted Utilisateurs
+              .col-md-4
+                if userStats.recentUsers && userStats.recentUsers.length > 0
+                  h6.text-muted Dernières connexions
+                  each user in userStats.recentUsers
+                    .d-flex.align-items-center.mb-2
+                      .bg-primary.rounded-circle.d-flex.align-items-center.justify-content-center.text-white.me-2(style="width: 30px; height: 30px; font-size: 0.8rem; font-weight: bold;")
+                        = user.firstName.charAt(0).toUpperCase() + user.lastName.charAt(0).toUpperCase()
+                      div
+                        .fw-bold= user.firstName + ' ' + user.lastName
+                        if user.lastLogin
+                          .small.text-muted= new Date(user.lastLogin).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+                        else
+                          .small.text-muted Jamais connecté
+                else
+                  p.text-muted Aucune activité récente
+            .mt-3
+              a.btn.btn-primary.btn-sm(href="/users")
+                i.bi.bi-people.me-1
+                | Gérer les utilisateurs
+
+  // Coût total (déplacé en bas)
+  .row.mb-4
+    .col-md-12
       .card.dashboard-card.danger
         .card-body
           .d-flex.justify-content-between.align-items-center
             div
               h2.text-danger.mb-0= stats.totalCost.toFixed(2) + ' €'
-              p.card-text.mb-0 Coût total production
+              p.card-text.mb-0 Coût total de production
             i.bi.bi-currency-euro.display-4.text-danger.opacity-25
 
   // Graphiques

@@ -3,6 +3,7 @@ const router = express.Router();
 const Furniture = require('../models/Furniture');
 const Material = require('../models/Material');
 const Supplier = require('../models/Supplier');
+const User = require('../models/User');
 const { requireAuth } = require('../middleware/auth');
 
 // Toutes les routes nécessitent une authentification
@@ -15,6 +16,24 @@ router.get('/', async (req, res) => {
     const totalFurniture = await Furniture.countDocuments();
     const totalMaterials = await Material.countDocuments();
     const totalSuppliers = await Supplier.countDocuments();
+    const totalUsers = await User.countDocuments();
+
+    // Statistiques utilisateurs (pour les admins)
+    let userStats = null;
+    if (req.session.user.role === 'admin' || (req.session.user.permissions && req.session.user.permissions.includes('read_users'))) {
+      userStats = {
+        total: totalUsers,
+        active: await User.countDocuments({ isActive: true }),
+        inactive: await User.countDocuments({ isActive: false }),
+        admins: await User.countDocuments({ role: 'admin' }),
+        managers: await User.countDocuments({ role: 'manager' }),
+        users: await User.countDocuments({ role: 'user' }),
+        recentUsers: await User.find({ isActive: true })
+          .select('-password')
+          .sort({ lastLogin: -1 })
+          .limit(5)
+      };
+    }
 
     // Répartition par catégorie de meubles
     const furnitureByCategory = await Furniture.aggregate([
@@ -62,12 +81,14 @@ router.get('/', async (req, res) => {
         totalFurniture,
         totalMaterials,
         totalSuppliers,
+        totalUsers,
         totalCost: totalCost[0]?.total || 0
       },
       furnitureByCategory,
       furnitureByStatus,
       materialUsage,
-      recentFurniture
+      recentFurniture,
+      userStats
     });
   } catch (error) {
     console.error(error);

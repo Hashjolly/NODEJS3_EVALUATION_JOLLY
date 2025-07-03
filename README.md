@@ -6,7 +6,8 @@ Une application web complète pour la gestion des meubles, matériaux et fournis
 
 - **Gestion des meubles** : Création, consultation et gestion des meubles avec leurs matériaux
 - **Gestion des matériaux** : Base de données complète des matériaux et fournisseurs
-- **Système d'authentification** : Connexion sécurisée pour accéder aux fonctionnalités
+- **Gestion des utilisateurs** : Interface d'administration complète des utilisateurs avec rôles et permissions
+- **Système d'authentification** : Connexion sécurisée avec gestion des rôles (admin, manager, user)
 - **Tableau de bord** : Statistiques et graphiques avec Chart.js
 - **Recherche avancée** : Recherche par mots-clés et filtres
 - **Interface responsive** : Design moderne basé sur Bootstrap 5
@@ -77,10 +78,23 @@ node init-db.js
 ```
 
 Cette commande va :
-- Créer un utilisateur administrateur (admin/admin123)
+- Créer un utilisateur administrateur (admin/admin123) avec tous les privilèges
 - Créer les fournisseurs (BBois, MetaLo, pPlastique)
 - Créer les matériaux de base (Frêne, Chêne, Noyer, Acier inox, Aluminium, Plastique)
 - Créer quelques meubles d'exemple
+
+**Ou utilisez les scripts spécialisés :**
+
+```bash
+# Créer seulement l'administrateur
+npm run create-admin
+
+# Créer des utilisateurs de test (manager et user)
+npm run create-test-users
+
+# Migrer les utilisateurs existants vers le nouveau format
+npm run migrate-users
+```
 
 ### 6. Démarrer l'application
 
@@ -119,6 +133,8 @@ L'application sera accessible à l'adresse : http://localhost:3000
 │   ├── auth.js           # Routes d'authentification
 │   ├── furniture.js      # Routes des meubles
 │   ├── materials.js      # Routes des matériaux
+│   ├── suppliers.js      # Routes des fournisseurs
+│   ├── users.js          # Routes de gestion des utilisateurs
 │   └── dashboard.js      # Routes du tableau de bord
 ├── middleware/
 │   └── auth.js           # Middleware d'authentification
@@ -142,7 +158,7 @@ L'application sera accessible à l'adresse : http://localhost:3000
 ### Collections principales :
 
 1. **Users** : Gestion des utilisateurs
-   - username, password, role
+   - username, email, password, firstName, lastName, role, permissions, isActive
 
 2. **Suppliers** : Fournisseurs
    - name, description, contact
@@ -182,8 +198,14 @@ npm run dev
 # Démarrage en production
 npm start
 
-# Réinitialiser la base de données
+# Réinitialiser la base de données complète
 node init-db.js
+
+# Gestion des utilisateurs
+npm run create-admin          # Créer un administrateur
+npm run create-test-users     # Créer des utilisateurs de test
+npm run migrate-users         # Migrer les utilisateurs existants
+npm run setup                 # Configuration complète (migration + admin)
 ```
 
 ## 🚀 Déploiement
@@ -207,6 +229,45 @@ node init-db.js
 - Protection CSRF (à implémenter)
 - Validation des entrées utilisateur
 - Authentification requise pour les données sensibles
+- Système de permissions granulaires par rôle
+
+## 👥 Gestion des Utilisateurs
+
+### Rôles disponibles
+
+1. **Administrateur (admin)** :
+   - Accès complet à toutes les fonctionnalités
+   - Gestion des utilisateurs (création, modification, suppression)
+   - Tableau de bord administrateur
+   - Toutes les permissions automatiquement
+
+2. **Manager (manager)** :
+   - Lecture/écriture des meubles, matériaux, fournisseurs
+   - Lecture des utilisateurs
+   - Accès aux rapports et statistiques
+
+3. **Utilisateur (user)** :
+   - Lecture seule des meubles, matériaux, fournisseurs
+   - Accès limité au système
+
+### Comptes de test
+
+Après l'exécution de `npm run create-test-users` :
+
+- **Admin** : `admin` / `admin123`
+- **Manager** : `manager` / `manager123`
+- **Utilisateur** : `user` / `user123`
+
+⚠️ **Important** : Changez ces mots de passe en production !
+
+### Permissions granulaires
+
+Le système utilise des permissions spécifiques :
+- `read_furniture`, `write_furniture`, `delete_furniture`
+- `read_materials`, `write_materials`, `delete_materials`
+- `read_suppliers`, `write_suppliers`, `delete_suppliers`
+- `read_users`, `write_users`, `delete_users`
+- `admin_dashboard`
 
 ## 🤝 Contribution
 
