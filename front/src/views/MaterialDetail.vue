@@ -58,11 +58,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { materialService, supplierService, type Material, type Supplier } from '../services/api'
+import { materialService, supplierService, type Material } from '../services/api'
 
 const route = useRoute()
 
-const item = ref<Material | Supplier | null>(null)
+const item = ref<Material | null>(null)
 const loading = ref(true)
 const error = ref('')
 
@@ -91,8 +91,6 @@ onMounted(async () => {
 
     if (route.path.includes('materials')) {
       item.value = await materialService.getById(id)
-    } else {
-      item.value = await supplierService.getById(id)
     }
   } catch (err) {
     error.value = 'Erreur lors du chargement'

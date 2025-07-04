@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { logger } = require('../config/logger');
 
 // Middleware pour vérifier les permissions utilisateurs
 const requireUserPermission = (permission) => {
@@ -23,6 +24,15 @@ const requireUserPermission = (permission) => {
 // Liste des utilisateurs
 router.get('/', requireAuth, requireUserPermission('read_users'), async (req, res) => {
   try {
+    logger.info('User list access attempt', {
+      userId: req.session.user.id,
+      userRole: req.session.user.role,
+      ip: req.ip,
+      searchQuery: req.query.search || '',
+      roleFilter: req.query.role || '',
+      statusFilter: req.query.status || ''
+    });
+
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
     const skip = (page - 1) * limit;
@@ -59,6 +69,14 @@ router.get('/', requireAuth, requireUserPermission('read_users'), async (req, re
     const totalUsers = await User.countDocuments(filter);
     const totalPages = Math.ceil(totalUsers / limit);
     
+    logger.info('User list retrieved successfully', {
+      userId: req.session.user.id,
+      resultCount: users.length,
+      totalUsers: totalUsers,
+      page: page,
+      searchQuery: searchQuery
+    });
+    
     res.render('users/index', {
       title: 'Gestion des utilisateurs',
       users,
@@ -75,6 +93,12 @@ router.get('/', requireAuth, requireUserPermission('read_users'), async (req, re
       message: req.query.message
     });
   } catch (error) {
+    logger.error('Error loading users list', {
+      error: error.message,
+      stack: error.stack,
+      userId: req.session.user.id,
+      ip: req.ip
+    });
     console.error(error);
     res.status(500).render('error', {
       title: 'Erreur',
@@ -103,6 +127,19 @@ router.get('/new', requireAuth, requireUserPermission('write_users'), (req, res)
 // Créer un nouvel utilisateur
 router.post('/', requireAuth, requireUserPermission('write_users'), async (req, res) => {
   try {
+    logger.info('User creation attempt', {
+      adminUserId: req.session.user.id,
+      adminRole: req.session.user.role,
+      newUserData: {
+        username: req.body.username,
+        email: req.body.email,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        role: req.body.role
+      },
+      ip: req.ip
+    });
+
     const { username, email, password, firstName, lastName, role } = req.body;
     
     // Validation
@@ -143,8 +180,27 @@ router.post('/', requireAuth, requireUserPermission('write_users'), async (req, 
     
     await newUser.save();
     
+    logger.info('User created successfully', {
+      adminUserId: req.session.user.id,
+      newUserId: newUser._id,
+      newUserUsername: newUser.username,
+      newUserRole: newUser.role,
+      ip: req.ip
+    });
+    
     res.redirect('/users?message=user_created');
   } catch (error) {
+    logger.error('Error creating user', {
+      error: error.message,
+      stack: error.stack,
+      adminUserId: req.session.user.id,
+      attemptedUserData: {
+        username: req.body.username,
+        email: req.body.email,
+        role: req.body.role
+      },
+      ip: req.ip
+    });
     console.error(error);
     req.session.error = 'Erreur lors de la création de l\'utilisateur.';
     req.session.formData = req.body;
@@ -155,6 +211,12 @@ router.post('/', requireAuth, requireUserPermission('write_users'), async (req, 
 // Afficher un utilisateur
 router.get('/:id', requireAuth, requireUserPermission('read_users'), async (req, res) => {
   try {
+    logger.info('User details access', {
+      adminUserId: req.session.user.id,
+      targetUserId: req.params.id,
+      ip: req.ip
+    });
+
     const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {
@@ -171,6 +233,13 @@ router.get('/:id', requireAuth, requireUserPermission('read_users'), async (req,
       message: req.query.message
     });
   } catch (error) {
+    logger.error('Error loading user details', {
+      error: error.message,
+      stack: error.stack,
+      adminUserId: req.session.user.id,
+      targetUserId: req.params.id,
+      ip: req.ip
+    });
     console.error(error);
     res.status(500).render('error', {
       title: 'Erreur',
@@ -223,6 +292,20 @@ router.get('/:id/edit', requireAuth, requireUserPermission('write_users'), async
 // Mettre à jour un utilisateur
 router.put('/:id', requireAuth, requireUserPermission('write_users'), async (req, res) => {
   try {
+    logger.info('User update attempt', {
+      adminUserId: req.session.user.id,
+      adminRole: req.session.user.role,
+      targetUserId: req.params.id,
+      updateData: {
+        username: req.body.username,
+        email: req.body.email,
+        role: req.body.role,
+        isActive: req.body.isActive,
+        permissionsChanged: !!req.body.permissions
+      },
+      ip: req.ip
+    });
+
     const { username, email, firstName, lastName, role, permissions, isActive, password } = req.body;
     
     const user = await User.findById(req.params.id);
@@ -272,6 +355,15 @@ router.put('/:id', requireAuth, requireUserPermission('write_users'), async (req
     
     await user.save();
     
+    logger.info('User updated successfully', {
+      adminUserId: req.session.user.id,
+      updatedUserId: user._id,
+      updatedUserUsername: user.username,
+      updatedUserRole: user.role,
+      wasOwnAccount: req.session.user.id === user._id.toString(),
+      ip: req.ip
+    });
+    
     // Mettre à jour la session si c'est l'utilisateur connecté
     if (req.session.user.id === user._id.toString()) {
       req.session.user = {
@@ -284,6 +376,18 @@ router.put('/:id', requireAuth, requireUserPermission('write_users'), async (req
     
     res.redirect(`/users/${req.params.id}?message=user_updated`);
   } catch (error) {
+    logger.error('Error updating user', {
+      error: error.message,
+      stack: error.stack,
+      adminUserId: req.session.user.id,
+      targetUserId: req.params.id,
+      updateAttemptData: {
+        username: req.body.username,
+        email: req.body.email,
+        role: req.body.role
+      },
+      ip: req.ip
+    });
     console.error(error);
     req.session.error = 'Erreur lors de la mise à jour de l\'utilisateur.';
     res.redirect(`/users/${req.params.id}/edit`);
@@ -293,21 +397,53 @@ router.put('/:id', requireAuth, requireUserPermission('write_users'), async (req
 // Supprimer un utilisateur
 router.delete('/:id', requireAuth, requireUserPermission('delete_users'), async (req, res) => {
   try {
+    logger.info('User deletion attempt', {
+      adminUserId: req.session.user.id,
+      adminRole: req.session.user.role,
+      targetUserId: req.params.id,
+      ip: req.ip
+    });
+
     const user = await User.findById(req.params.id);
     
     if (!user) {
+      logger.warn('User deletion failed - user not found', {
+        adminUserId: req.session.user.id,
+        targetUserId: req.params.id,
+        ip: req.ip
+      });
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
     
     // Empêcher la suppression de son propre compte
     if (req.session.user.id === user._id.toString()) {
+      logger.warn('User deletion failed - attempting to delete own account', {
+        adminUserId: req.session.user.id,
+        targetUserId: req.params.id,
+        ip: req.ip
+      });
       return res.status(400).json({ error: 'Vous ne pouvez pas supprimer votre propre compte' });
     }
     
     await User.findByIdAndDelete(req.params.id);
     
+    logger.info('User deleted successfully', {
+      adminUserId: req.session.user.id,
+      deletedUserId: user._id,
+      deletedUserUsername: user.username,
+      deletedUserRole: user.role,
+      ip: req.ip
+    });
+    
     res.json({ message: 'Utilisateur supprimé avec succès' });
   } catch (error) {
+    logger.error('Error deleting user', {
+      error: error.message,
+      stack: error.stack,
+      adminUserId: req.session.user.id,
+      targetUserId: req.params.id,
+      ip: req.ip
+    });
     console.error(error);
     res.status(500).json({ error: 'Erreur lors de la suppression de l\'utilisateur' });
   }

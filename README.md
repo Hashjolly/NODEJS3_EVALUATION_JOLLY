@@ -1,292 +1,139 @@
-# Application de Gestion des Meubles
+# 🎯 Projet Gestion des Meubles - Guide de Démarrage
 
-Une application web complète pour la gestion des meubles, matériaux et fournisseurs destinée aux designers d'ameublement.
+## 📋 Structure du Projet
 
-## 🎯 Fonctionnalités
-
-- **Gestion des meubles** : Création, consultation et gestion des meubles avec leurs matériaux
-- **Gestion des matériaux** : Base de données complète des matériaux et fournisseurs
-- **Gestion des utilisateurs** : Interface d'administration complète des utilisateurs avec rôles et permissions
-- **Système d'authentification** : Connexion sécurisée avec gestion des rôles (admin, manager, user)
-- **Tableau de bord** : Statistiques et graphiques avec Chart.js
-- **Recherche avancée** : Recherche par mots-clés et filtres
-- **Interface responsive** : Design moderne basé sur Bootstrap 5
-
-## 🛠 Technologies utilisées
-
-- **Backend** : Node.js, Express.js
-- **Base de données** : MongoDB avec Mongoose
-- **Template engine** : Pug
-- **Frontend** : Bootstrap 5, Chart.js
-- **Authentification** : Sessions avec bcryptjs
-- **Autres** : dotenv, express-session, connect-mongo
-
-## 📋 Prérequis
-
-- Node.js (version 14 ou supérieure)
-- MongoDB (local ou cloud)
-- Git
-
-## 🚀 Installation et démarrage
-
-### 1. Cloner le projet
-
-```bash
-git clone https://github.com/Hashjolly/NODEJS3_EVALUATION_JOLLY.git
-cd furniture-management-app
+```
+EVALUATION/
+├── back/                    # Backend Node.js/Express
+│   ├── app.js              # Serveur principal
+│   ├── config/             # Configuration DB
+│   ├── models/             # Modèles Mongoose
+│   ├── routes/             # Routes API
+│   ├── views/              # Templates Pug
+│   ├── middleware/         # Middleware auth
+│   └── public/             # Fichiers statiques
+├── front/                  # Frontend Vue.js
+│   ├── src/                # Code source Vue
+│   ├── public/             # Assets publics
+│   └── vite.config.ts      # Configuration Vite
+├── package.json            # Scripts d'orchestration
+└── README.md               # Documentation
 ```
 
-### 2. Installer les dépendances
+## 🚀 Installation et Démarrage
 
+### Installation Complète
 ```bash
-npm install
+# Installer toutes les dépendances (back + front)
+npm run install:all
 ```
 
-### 3. Configuration de l'environnement
-
-Copiez le fichier `.env` et ajustez les variables selon votre configuration :
-
+### Démarrage des Serveurs
 ```bash
-# Variables d'environnement
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/furniture_db
-SESSION_SECRET=votre_secret_session_ici
-
-# Base de données
-DB_NAME=furniture_db
-
-# Authentification
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=admin123
+# Démarrer le backend ET le frontend simultanément
+npm run dev
 ```
 
-### 4. Démarrer MongoDB
+Les serveurs se lancent automatiquement :
+- 🔙 **Backend** : http://localhost:3004
+- 🎨 **Frontend** : http://localhost:5173
 
-Assurez-vous que MongoDB est démarré sur votre système :
+## 🗄️ Configuration de la Base de Données
 
+### Prérequis
+- MongoDB installé et en cours d'exécution
+- Variables d'environnement configurées dans `back/.env`
+
+### Initialisation de la Base de Données
 ```bash
-# Sur Windows avec MongoDB installé
-mongod
+# Créer les collections et données de test
+npm run init-db
 
-# Ou utilisez MongoDB Compass pour une interface graphique
-```
-
-### 5. Initialiser la base de données
-
-```bash
-node init-db.js
-```
-
-Cette commande va :
-- Créer un utilisateur administrateur (admin/admin123) avec tous les privilèges
-- Créer les fournisseurs (BBois, MetaLo, pPlastique)
-- Créer les matériaux de base (Frêne, Chêne, Noyer, Acier inox, Aluminium, Plastique)
-- Créer quelques meubles d'exemple
-
-**Ou utilisez les scripts spécialisés :**
-
-```bash
-# Créer seulement l'administrateur
+# Créer un compte administrateur
 npm run create-admin
-
-# Créer des utilisateurs de test (manager et user)
-npm run create-test-users
-
-# Migrer les utilisateurs existants vers le nouveau format
-npm run migrate-users
 ```
 
-### 6. Démarrer l'application
+## 🔐 Gestion des Utilisateurs
 
-```bash
-# Mode développement avec rechargement automatique
-npm run dev
+### Fonctionnalités Implémentées
+- ✅ **Authentification** : Login/Logout sécurisé
+- ✅ **Gestion des Rôles** : Admin, Utilisateur, Invité
+- ✅ **CRUD Utilisateurs** : Créer, Lire, Modifier, Supprimer
+- ✅ **Permissions** : Contrôle d'accès par rôle
+- ✅ **Validation** : Validation des données utilisateur
 
-# ou mode production
-npm start
-```
+### Accès à l'Interface
+1. Accédez à http://localhost:3004
+2. Connectez-vous avec le compte admin créé
+3. Naviguez vers "Gestion des Utilisateurs"
 
-L'application sera accessible à l'adresse : http://localhost:3000
+## 📝 Scripts Disponibles
 
-### 7. Se connecter
+### Scripts Principaux
+- `npm run dev` - Démarrer les serveurs de développement
+- `npm run install:all` - Installer toutes les dépendances
+- `npm run build` - Construire l'application pour production
+- `npm run start` - Démarrer en mode production
 
-- **Nom d'utilisateur** : admin
-- **Mot de passe** : admin123
+### Scripts de Base de Données
+- `npm run init-db` - Initialiser la base de données
+- `npm run create-admin` - Créer un compte administrateur
+- `npm run migrate-users` - Migrer les anciens utilisateurs
 
-## 📁 Structure du projet
+### Scripts Utilitaires
+- `npm run clean` - Nettoyer les node_modules
+- `npm run lint` - Vérifier le code
+- `npm run test` - Exécuter les tests
 
-```
-/
-├── app.js                  # Point d'entrée de l'application
-├── package.json           # Dépendances et scripts
-├── init-db.js             # Script d'initialisation de la base de données
-├── .env                   # Variables d'environnement
-├── config/
-│   └── database.js        # Configuration MongoDB
-├── models/
-│   ├── User.js           # Modèle utilisateur
-│   ├── Supplier.js       # Modèle fournisseur
-│   ├── Material.js       # Modèle matériau
-│   └── Furniture.js      # Modèle meuble
-├── routes/
-│   ├── index.js          # Routes principales
-│   ├── auth.js           # Routes d'authentification
-│   ├── furniture.js      # Routes des meubles
-│   ├── materials.js      # Routes des matériaux
-│   ├── suppliers.js      # Routes des fournisseurs
-│   ├── users.js          # Routes de gestion des utilisateurs
-│   └── dashboard.js      # Routes du tableau de bord
-├── middleware/
-│   └── auth.js           # Middleware d'authentification
-├── views/                # Templates Pug
-│   ├── layout.pug        # Template principal
-│   ├── index.pug         # Page d'accueil
-│   ├── error.pug         # Page d'erreur
-│   ├── auth/
-│   │   └── login.pug     # Page de connexion
-│   └── dashboard/
-│       └── index.pug     # Tableau de bord
-└── public/               # Fichiers statiques
-    ├── css/
-    │   └── admin.css     # Styles personnalisés
-    └── js/
-        └── app.js        # JavaScript client
-```
+## 🛠️ Développement
 
-## 📊 Schéma de base de données
+### Backend (Port 3004)
+- **Framework** : Express.js
+- **Base de données** : MongoDB avec Mongoose
+- **Templates** : Pug
+- **Authentification** : Sessions Express
+- **Middleware** : Contrôle d'accès par rôle
 
-### Collections principales :
+### Frontend (Port 5173)
+- **Framework** : Vue.js 3
+- **Build Tool** : Vite
+- **Langage** : TypeScript
+- **Styles** : CSS moderne
 
-1. **Users** : Gestion des utilisateurs
-   - username, email, password, firstName, lastName, role, permissions, isActive
+## 🔍 Fonctionnalités Principales
 
-2. **Suppliers** : Fournisseurs
-   - name, description, contact
+### Gestion des Meubles
+- Créer, modifier, supprimer des meubles
+- Associer matériaux et fournisseurs
+- Recherche et filtrage avancés
 
-3. **Materials** : Matériaux
-   - name, category, type, supplier, unitPrice, keywords
+### Gestion des Matériaux
+- Catalogue complet des matériaux
+- Organisation par catégories
+- Gestion des fournisseurs
 
-4. **Furniture** : Meubles
-   - name, category, description, materials[], totalCost, status, keywords
+### Gestion des Fournisseurs
+- Informations complètes des fournisseurs
+- Historique des collaborations
+- Gestion des contacts
 
-## 🎨 Interface utilisateur
-
-L'interface utilise **Bootstrap 5 Admin Dashboard Theme** avec :
-- Navigation responsive
-- Cartes de statistiques
-- Graphiques interactifs (Chart.js)
-- Tableaux de données
-- Formulaires stylisés
-- Design moderne et professionnel
-
-## 🔧 Développement
-
-### Ajouter de nouvelles fonctionnalités
-
-1. **Nouveau modèle** : Créer dans `/models/`
-2. **Nouvelles routes** : Ajouter dans `/routes/`
-3. **Nouvelles vues** : Créer dans `/views/`
-4. **Styles** : Modifier `/public/css/admin.css`
-5. **JavaScript** : Ajouter dans `/public/js/app.js`
-
-### Scripts utiles
-
-```bash
-# Démarrage en développement
-npm run dev
-
-# Démarrage en production
-npm start
-
-# Réinitialiser la base de données complète
-node init-db.js
-
-# Gestion des utilisateurs
-npm run create-admin          # Créer un administrateur
-npm run create-test-users     # Créer des utilisateurs de test
-npm run migrate-users         # Migrer les utilisateurs existants
-npm run setup                 # Configuration complète (migration + admin)
-```
-
-## 🚀 Déploiement
-
-### Préparation pour la production
-
-1. **Variables d'environnement** :
-   - Changer `SESSION_SECRET`
-   - Utiliser une base MongoDB cloud (MongoDB Atlas)
-   - Configurer les URLs de production
-
-2. **Optimisations** :
-   - Minification des assets CSS/JS
-   - Configuration des en-têtes de sécurité
-   - Mise en place d'un reverse proxy (Nginx)
+### Gestion des Utilisateurs (Nouveau)
+- Interface d'administration
+- Contrôle des permissions
+- Audit des actions utilisateur
 
 ## 🔒 Sécurité
 
-- Mots de passe hashés avec bcryptjs
-- Sessions sécurisées
-- Protection CSRF (à implémenter)
-- Validation des entrées utilisateur
-- Authentification requise pour les données sensibles
-- Système de permissions granulaires par rôle
+- **Authentification** : Sessions sécurisées
+- **Authorisation** : Contrôle d'accès basé sur les rôles
+- **Validation** : Validation côté client et serveur
+- **Protection CSRF** : Jetons de sécurité
+- **Mots de passe** : Hachage bcrypt
 
-## 👥 Gestion des Utilisateurs
+## 📊 Tableau de Bord
 
-### Rôles disponibles
-
-1. **Administrateur (admin)** :
-   - Accès complet à toutes les fonctionnalités
-   - Gestion des utilisateurs (création, modification, suppression)
-   - Tableau de bord administrateur
-   - Toutes les permissions automatiquement
-
-2. **Manager (manager)** :
-   - Lecture/écriture des meubles, matériaux, fournisseurs
-   - Lecture des utilisateurs
-   - Accès aux rapports et statistiques
-
-3. **Utilisateur (user)** :
-   - Lecture seule des meubles, matériaux, fournisseurs
-   - Accès limité au système
-
-### Comptes de test
-
-Après l'exécution de `npm run create-test-users` :
-
-- **Admin** : `admin` / `admin123`
-- **Manager** : `manager` / `manager123`
-- **Utilisateur** : `user` / `user123`
-
-⚠️ **Important** : Changez ces mots de passe en production !
-
-### Permissions granulaires
-
-Le système utilise des permissions spécifiques :
-- `read_furniture`, `write_furniture`, `delete_furniture`
-- `read_materials`, `write_materials`, `delete_materials`
-- `read_suppliers`, `write_suppliers`, `delete_suppliers`
-- `read_users`, `write_users`, `delete_users`
-- `admin_dashboard`
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/nouvelle-fonctionnalite`)
-3. Commit les changements (`git commit -m 'Ajout nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 📞 Support
-
-Pour toute question ou problème :
-- Ouvrir une issue sur le repository
-- Contacter l'équipe de développement
-
----
-
-**Note** : Ce projet est développé dans le cadre d'un cours Node.js et représente une application complète de gestion pour professionnels de l'ameublement.
+L'interface d'administration offre :
+- Vue d'ensemble des statistiques
+- Accès rapide aux fonctionnalités
+- Gestion centralisée des données
+- Interface utilisateur intuitive

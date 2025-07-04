@@ -54,8 +54,7 @@
             @click="viewMaterial(material._id)"
           >
             <div class="material-image">
-              <img v-if="material.imageUrl" :src="material.imageUrl" :alt="material.name" />
-              <div v-else class="no-image">
+              <div class="no-image">
                 <div class="no-image-icon">🧱</div>
               </div>
             </div>

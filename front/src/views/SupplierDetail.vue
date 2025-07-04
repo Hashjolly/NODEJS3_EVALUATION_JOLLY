@@ -23,10 +23,6 @@
         <div class="supplier-info">
           <div class="supplier-header">
             <h1>{{ supplier.name }}</h1>
-            <div class="rating">
-              <span class="stars">{{ '⭐'.repeat(Math.floor(supplier.rating)) }}</span>
-              <span class="rating-value">{{ supplier.rating }}/5</span>
-            </div>
           </div>
           
           <p class="description">{{ supplier.description }}</p>
@@ -46,19 +42,6 @@
                 <strong>📍 Adresse:</strong>
                 <span>{{ supplier.contact.address }}</span>
               </div>
-              <div class="contact-item" v-if="supplier.website">
-                <strong>🌐 Site web:</strong>
-                <a :href="supplier.website" target="_blank">{{ supplier.website }}</a>
-              </div>
-            </div>
-          </div>
-
-          <div class="specialties" v-if="supplier.specialties && supplier.specialties.length > 0">
-            <h3>Spécialités</h3>
-            <div class="specialty-tags">
-              <span v-for="specialty in supplier.specialties" :key="specialty" class="specialty-tag">
-                {{ specialty }}
-              </span>
             </div>
           </div>
 

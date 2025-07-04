@@ -30,13 +30,7 @@
           <!-- Image Section -->
           <div class="furniture-image">
             <div class="image-container">
-              <img
-                v-if="furniture.imageUrl"
-                :src="furniture.imageUrl"
-                :alt="furniture.name"
-                class="main-image"
-              />
-              <div v-else class="no-image">
+              <div class="no-image">
                 <div class="no-image-icon">🪑</div>
                 <p>Aucune image disponible</p>
               </div>
@@ -114,28 +108,6 @@
               </div>
               <div class="material-price">
                 {{ formatPrice(materialItem.material.unitPrice) }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Supplier Section -->
-        <div v-if="furniture.supplier" class="supplier-section">
-          <h3>Fournisseur</h3>
-          <div class="supplier-card" @click="viewSupplier(furniture.supplier._id)">
-            <div class="supplier-info">
-              <h4>{{ furniture.supplier.name }}</h4>
-              <p>{{ furniture.supplier.description }}</p>
-              <div class="supplier-contact">
-                <p><strong>📧</strong> {{ furniture.supplier.contactInfo.email }}</p>
-                <p><strong>📞</strong> {{ furniture.supplier.contactInfo.phone }}</p>
-                <p><strong>📍</strong> {{ furniture.supplier.contactInfo.address }}</p>
-              </div>
-            </div>
-            <div class="supplier-rating">
-              <div class="rating">
-                <span class="stars">{{ '⭐'.repeat(Math.floor(furniture.supplier.rating)) }}</span>
-                <span class="rating-value">{{ furniture.supplier.rating }}/5</span>
               </div>
             </div>
           </div>
