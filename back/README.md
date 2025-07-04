@@ -1,13 +1,164 @@
-# Application de Gestion des Meubles
+# 🔙 Backend - API Node.js/Express/MongoDB
 
-Une application web complète pour la gestion des meubles, matériaux et fournisseurs destinée aux designers d'ameublement.
+> API REST sécurisée pour la gestion de meubles, matériaux et fournisseurs avec dashboard administrateur
 
-## 🎯 Fonctionnalités
+## 🚀 Démarrage Rapide
 
-- **Gestion des meubles** : Création, consultation et gestion des meubles avec leurs matériaux
-- **Gestion des matériaux** : Base de données complète des matériaux et fournisseurs
-- **Gestion des utilisateurs** : Interface d'administration complète des utilisateurs avec rôles et permissions
-- **Système d'authentification** : Connexion sécurisée avec gestion des rôles (admin, manager, user)
+```bash
+# Installation des dépendances
+npm install
+
+# Configuration environnement
+cp .env.example .env
+# Éditer .env avec vos paramètres
+
+# Initialiser la base de données
+node init-db.js
+
+# Créer un compte admin
+node create-admin.js
+
+# Démarrer le serveur
+npm start
+# ou pour le développement
+npm run dev
+```
+
+**Accès :** http://localhost:3004
+
+## 🏗️ Architecture
+
+```
+back/
+├── app.js                          # 🎯 Application principale Express
+├── config/
+│   ├── database.js                 # 🗄️ Configuration MongoDB
+│   └── logger.js                   # 📝 Configuration Winston
+├── middleware/
+│   ├── auth.js                     # 🔐 Authentification sessions
+│   ├── rateLimiting.js             # ⏱️ Limitation de requêtes
+│   ├── validation.js               # ✅ Validation & sanitisation
+│   ├── permissions.js              # 👥 Contrôle d'accès
+│   └── csrfProtection.js           # 🛡️ Protection CSRF
+├── models/
+│   ├── Furniture.js                # 🪑 Schéma meubles
+│   ├── Material.js                 # 🔧 Schéma matériaux
+│   ├── Supplier.js                 # 🏭 Schéma fournisseurs
+│   └── User.js                     # 👤 Schéma utilisateurs
+├── routes/
+│   ├── api.js                      # 📡 Routes API REST
+│   ├── auth.js                     # 🔑 Routes authentification
+│   ├── dashboard.js                # 📊 Dashboard admin
+│   ├── furniture.js                # 🪑 Routes meubles web
+│   ├── materials.js                # 🔧 Routes matériaux web
+│   ├── suppliers.js                # 🏭 Routes fournisseurs web
+│   ├── users.js                    # 👥 Routes utilisateurs
+│   └── index.js                    # � Route principale
+├── views/                          # 🎨 Templates Pug
+│   ├── layout.pug                  # 📋 Layout principal
+│   ├── index.pug                   # 🏠 Page d'accueil
+│   ├── dashboard/                  # 📊 Vues dashboard
+│   ├── furniture/                  # 🪑 Vues meubles
+│   ├── materials/                  # 🔧 Vues matériaux
+│   ├── suppliers/                  # 🏭 Vues fournisseurs
+│   └── auth/                       # 🔐 Vues authentification
+├── public/
+│   ├── css/                        # 🎨 Styles CSS
+│   └── js/                         # ⚡ Scripts JavaScript
+├── logs/                           # 📋 Fichiers de logs Winston
+└── .env                            # ⚙️ Variables d'environnement
+```
+
+## 📡 API REST
+
+### Endpoints Meubles
+```http
+GET    /api/furniture           # Liste tous les meubles
+GET    /api/furniture/:id       # Détail d'un meuble
+POST   /api/furniture           # Créer un meuble
+PUT    /api/furniture/:id       # Modifier un meuble
+DELETE /api/furniture/:id       # Supprimer un meuble
+```
+
+### Endpoints Matériaux
+```http
+GET    /api/materials           # Liste tous les matériaux
+GET    /api/materials/:id       # Détail d'un matériau
+POST   /api/materials           # Créer un matériau
+PUT    /api/materials/:id       # Modifier un matériau
+DELETE /api/materials/:id       # Supprimer un matériau
+```
+
+### Endpoints Fournisseurs
+```http
+GET    /api/suppliers           # Liste tous les fournisseurs
+GET    /api/suppliers/:id       # Détail d'un fournisseur
+POST   /api/suppliers           # Créer un fournisseur
+PUT    /api/suppliers/:id       # Modifier un fournisseur
+DELETE /api/suppliers/:id       # Supprimer un fournisseur
+```
+
+### Endpoints Utilisateurs (Admin)
+```http
+GET    /api/users               # Liste utilisateurs (admin)
+POST   /api/users               # Créer utilisateur (admin)
+PUT    /api/users/:id           # Modifier utilisateur (admin)
+DELETE /api/users/:id           # Supprimer utilisateur (admin)
+```
+
+### Authentification
+```http
+POST   /auth/login              # Connexion
+POST   /auth/logout             # Déconnexion
+GET    /auth/check              # Vérifier session
+```
+
+## 🛡️ Sécurité
+
+### Middleware de Sécurité
+- **CSRF Protection** - Tokens anti-CSRF
+- **Data Validation** - Sanitisation des entrées
+- **Session Security** - Sessions sécurisées
+- **Brute Force Prevention** - Détection d'attaques
+
+
+### Permissions
+- **Admin** - Accès complet
+- **Manager** - CRUD meubles/matériaux/fournisseurs
+- **User** - Lecture seule
+- **Guest** - Accès public limité
+
+## 📝 Logging avec Winston
+
+### Types de Logs
+```
+logs/
+├── app.log              # Logs généraux application
+├── error.log            # Erreurs uniquement
+├── debug.log            # Logs de débogage
+├── auth.log             # Événements authentification
+├── security.log         # Alertes sécurité
+└── performance.log      # Métriques performance
+```
+
+### Niveaux de Log
+- **Error** - Erreurs critiques
+- **Warn** - Avertissements
+- **Info** - Informations générales
+- **Debug** - Débogage détaillé
+
+### Format des Logs
+```json
+{
+  "level": "info",
+  "message": "User login successful",
+  "timestamp": "2025-07-04T15:30:00.000Z",
+  "service": "furniture-management",
+  "userId": "user_123",
+  "ip": "127.0.0.1",
+  "userAgent": "Mozilla/5.0..."
+}
+```
 - **Tableau de bord** : Statistiques et graphiques avec Chart.js
 - **Recherche avancée** : Recherche par mots-clés et filtres
 - **Interface responsive** : Design moderne basé sur Bootstrap 5
@@ -113,62 +264,6 @@ L'application sera accessible à l'adresse : http://localhost:3004
 - **Nom d'utilisateur** : admin
 - **Mot de passe** : admin123
 
-## 📁 Structure du projet
-
-```
-/
-├── app.js                  # Point d'entrée de l'application
-├── package.json           # Dépendances et scripts
-├── init-db.js             # Script d'initialisation de la base de données
-├── .env                   # Variables d'environnement
-├── config/
-│   └── database.js        # Configuration MongoDB
-├── models/
-│   ├── User.js           # Modèle utilisateur
-│   ├── Supplier.js       # Modèle fournisseur
-│   ├── Material.js       # Modèle matériau
-│   └── Furniture.js      # Modèle meuble
-├── routes/
-│   ├── index.js          # Routes principales
-│   ├── auth.js           # Routes d'authentification
-│   ├── furniture.js      # Routes des meubles
-│   ├── materials.js      # Routes des matériaux
-│   ├── suppliers.js      # Routes des fournisseurs
-│   ├── users.js          # Routes de gestion des utilisateurs
-│   └── dashboard.js      # Routes du tableau de bord
-├── middleware/
-│   └── auth.js           # Middleware d'authentification
-├── views/                # Templates Pug
-│   ├── layout.pug        # Template principal
-│   ├── index.pug         # Page d'accueil
-│   ├── error.pug         # Page d'erreur
-│   ├── auth/
-│   │   └── login.pug     # Page de connexion
-│   └── dashboard/
-│       └── index.pug     # Tableau de bord
-└── public/               # Fichiers statiques
-    ├── css/
-    │   └── admin.css     # Styles personnalisés
-    └── js/
-        └── app.js        # JavaScript client
-```
-
-## 📊 Schéma de base de données
-
-### Collections principales :
-
-1. **Users** : Gestion des utilisateurs
-   - username, email, password, firstName, lastName, role, permissions, isActive
-
-2. **Suppliers** : Fournisseurs
-   - name, description, contact
-
-3. **Materials** : Matériaux
-   - name, category, type, supplier, unitPrice, keywords
-
-4. **Furniture** : Meubles
-   - name, category, description, materials[], totalCost, status, keywords
-
 ## 🎨 Interface utilisateur
 
 L'interface utilise **Bootstrap 5 Admin Dashboard Theme** avec :
@@ -226,7 +321,6 @@ npm run setup                 # Configuration complète (migration + admin)
 
 - Mots de passe hashés avec bcryptjs
 - Sessions sécurisées
-- Protection CSRF (à implémenter)
 - Validation des entrées utilisateur
 - Authentification requise pour les données sensibles
 - Système de permissions granulaires par rôle
@@ -268,25 +362,3 @@ Le système utilise des permissions spécifiques :
 - `read_suppliers`, `write_suppliers`, `delete_suppliers`
 - `read_users`, `write_users`, `delete_users`
 - `admin_dashboard`
-
-## 🤝 Contribution
-
-1. Fork le projet
-2. Créer une branche feature (`git checkout -b feature/nouvelle-fonctionnalite`)
-3. Commit les changements (`git commit -m 'Ajout nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/nouvelle-fonctionnalite`)
-5. Ouvrir une Pull Request
-
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
-
-## 📞 Support
-
-Pour toute question ou problème :
-- Ouvrir une issue sur le repository
-- Contacter l'équipe de développement
-
----
-
-**Note** : Ce projet est développé dans le cadre d'un cours Node.js et représente une application complète de gestion pour professionnels de l'ameublement.
